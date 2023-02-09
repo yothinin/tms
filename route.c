@@ -277,7 +277,7 @@ int main(int argc, char *argv[]){
 
   gtk_init(&argc, &argv);
 
-  builder = gtk_builder_new_from_file("tms_route.glade");
+  builder = gtk_builder_new_from_file("glade/tms_route.glade");
   gtk_builder_connect_signals(builder, NULL);
 
   window = (GtkWidget*)gtk_builder_get_object(builder, "window");
