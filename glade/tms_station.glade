@@ -40,6 +40,9 @@
       </row>
     </data>
   </object>
+  <object class="GtkTreeModelSort" id="ModelSort">
+    <property name="model">mainStore</property>
+  </object>
   <object class="GtkWindow" id="window">
     <property name="width-request">600</property>
     <property name="height-request">480</property>
@@ -112,6 +115,7 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="model">mainStore</property>
+                    <property name="reorderable">True</property>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection"/>
                     </child>
