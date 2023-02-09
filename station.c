@@ -1,5 +1,17 @@
+/*
+ * All, these code are example and prototype of my new project 
+ * in the simple code and some where have a problem or not good
+ * if you (all) who found something wrong or the best way to coding
+ * please tell me more to correct it.
+ * 
+ * yothinin@pimpanya.com
+ * 
+*/
+ 
 #include <gtk/gtk.h>
 
+// The struct for keep widget to send to another function
+// initialize in function name: activate
 typedef struct _MyObjects{
   GtkWidget *treeview;
 	GtkWidget *entStaCode; 
@@ -8,29 +20,8 @@ typedef struct _MyObjects{
   GtkWidget *btnDelete;
   GtkWidget *btnExit;
   GtkWidget *btnNew;
+  //GtkListStore *liststore; //I don't know why this element make error Segment fault.
 }MyObjects;
-
-//static gboolean entStaCode_press (GtkWidget *widget, GdkEventKey *event, gpointer user_data){
-  //MyObjects *mobj = (MyObjects*) user_data;
-  //const gchar *stacode = gtk_entry_get_text (GTK_ENTRY(mobj->entStaCode));
-
-  //if (strcmp(gdk_keyval_name(event->keyval), "Return") == 0  ||
-      //strcmp(gdk_keyval_name(event->keyval), "KP_Enter") == 0){
-    //const gchar *stacode = gtk_entry_get_text (GTK_ENTRY(mobj->entStaCode));
-    ////g_print ("%s\n", stacode);
-
-    //if (strlen(stacode) != 0){
-      //gtk_widget_set_sensitive (mobj->entStaName, TRUE);
-      //gtk_widget_grab_focus (mobj->entStaName);
-    //}else{
-      //gtk_widget_set_sensitive (mobj->entStaName, FALSE);    
-    //}
-    
-    //return TRUE;
-  //}
-  
-  //return FALSE;
-//}
 
 static gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata){
   MyObjects *mobj = (MyObjects*) userdata;
@@ -71,6 +62,8 @@ static gboolean entStaName_release (GtkWidget *widget, GdkEventKey *event, gpoin
 }
 
 static void btnExit_clicked (GtkWidget *widget, gpointer userdata){
+  //MyObjects *mobj = (MyObjects*) userdata;
+  //g_object_unref (G_OBJECT(mobj->liststore));
   gtk_main_quit();
 }
 
@@ -94,8 +87,10 @@ static void btnSave_clicked (GtkWidget *widget, gpointer user_data){
   MyObjects *mobj = (MyObjects*) user_data;
   const gchar *staCode = gtk_entry_get_text (GTK_ENTRY(mobj->entStaCode));
   const gchar *staName = gtk_entry_get_text (GTK_ENTRY(mobj->entStaName));
-  if (staCode[0] != '\0' && staName[0] != '\0')
+  if (staCode[0] != '\0' && staName[0] != '\0'){
     g_print ("Save -> Code: %s, Name: %s\n", staCode, staName);
+    
+  }
 }
 
 static void btnDelete_clicked (GtkWidget *widget, gpointer user_data){
@@ -131,14 +126,14 @@ static void activate(GtkApplication* app, MyObjects mobj, gpointer user_data)
 {
   GtkBuilder *builder;
   GtkWidget *window;
-	GtkWidget *vbox;
 
-  builder = gtk_builder_new_from_file("tms_station.glade");
+  builder = gtk_builder_new_from_file("glade/tms_station.glade");
   //gtk_builder_connect_signals(builder, NULL);
 
   window = (GtkWidget*)gtk_builder_get_object(builder, "window");
-  gtk_window_set_position (GTK_WINDOW(window), GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_gravity (GTK_WINDOW(window), GDK_GRAVITY_CENTER);
+  gtk_window_set_position (GTK_WINDOW(window), GTK_ALIGN_CENTER);
+  //gtk_window_set_position (GTK_WINDOW(window), GTK_WINDOW_TOPLEVEL);
+  //gtk_window_set_gravity (GTK_WINDOW(window), GDK_GRAVITY_CENTER);
 
   mobj.treeview = (GtkWidget*) gtk_builder_get_object (builder, "treeView");
   mobj.entStaCode = (GtkWidget*) gtk_builder_get_object (builder, "entStaCode");
@@ -148,10 +143,9 @@ static void activate(GtkApplication* app, MyObjects mobj, gpointer user_data)
   mobj.btnExit = (GtkWidget*) gtk_builder_get_object (builder, "btnExit");
   mobj.btnNew = (GtkWidget*) gtk_builder_get_object (builder, "btnNew");
   GtkListStore *liststore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
+  //mobj.liststore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
   
   g_signal_connect (mobj.btnNew, "clicked", G_CALLBACK (btnNewClicked), &mobj);
-  //g_signal_connect (mobj.entStaCode, "key-press-event", G_CALLBACK (entStaCode_press), &mobj);
-  //g_signal_connect (mobj.entStaName, "key-press-event", G_CALLBACK (entStaName_press), &mobj);
   g_signal_connect (mobj.entStaCode, "key-release-event", G_CALLBACK (entStaCode_release), &mobj);
   g_signal_connect (mobj.entStaName, "key-release-event", G_CALLBACK (entStaName_release), &mobj);
   g_signal_connect (mobj.btnSave, "clicked", G_CALLBACK (btnSave_clicked), &mobj);
@@ -161,17 +155,16 @@ static void activate(GtkApplication* app, MyObjects mobj, gpointer user_data)
   g_signal_connect (window, "destroy", G_CALLBACK (btnExit_clicked), NULL);
   
   gtk_widget_grab_focus (mobj.btnNew);
-
   gtk_widget_show_all (window);
+  
+  g_object_unref (G_OBJECT(builder));
 
   gtk_main();
 }
 
 int main (int argc, char *argv[]){
-
 	GtkApplication *app;
 	int status = 0;
-	/* Initialize the environment */
 	app = gtk_application_new("pimpanya.com", G_APPLICATION_FLAGS_NONE);
 	g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
 	status = g_application_run(G_APPLICATION (app), argc, argv);
