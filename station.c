@@ -97,7 +97,7 @@ static void btnSave_clicked (GtkWidget *widget, gpointer user_data){
 static void btnDelete_clicked (GtkWidget *widget, gpointer user_data){
   MyObjects *mobj = (MyObjects*) user_data;
   const gchar *staCode = gtk_entry_get_text (GTK_ENTRY(mobj->entStaCode));
-  const gchar *staName = gtk_entry_get_text (GTK_ENTRY(mobj->entStaName));
+  //const gchar *staName = gtk_entry_get_text (GTK_ENTRY(mobj->entStaName));
   if (staCode[0] != '\0')
     g_print ("Delete -> Code: %s\n", staCode);
 }
@@ -136,7 +136,7 @@ static void activate(GtkApplication* app, MyObjects mobj, gpointer user_data)
   //gtk_window_set_position (GTK_WINDOW(window), GTK_WINDOW_TOPLEVEL);
   //gtk_window_set_gravity (GTK_WINDOW(window), GDK_GRAVITY_CENTER);
 
-  mobj.message = "เริ่มต้นโปรแกรม";
+  mobj.message = "เริ่มต้นโปรแกรม"; // In gdb this give an error Segment Fault. erro: p *mobj -> 0x0
   g_print ("%s\n", mobj.message);
 
   mobj.treeview = (GtkWidget*) gtk_builder_get_object (builder, "treeView");
@@ -146,7 +146,7 @@ static void activate(GtkApplication* app, MyObjects mobj, gpointer user_data)
   mobj.btnDelete = (GtkWidget*) gtk_builder_get_object (builder, "btnDelete");
   mobj.btnExit = (GtkWidget*) gtk_builder_get_object (builder, "btnExit");
   mobj.btnNew = (GtkWidget*) gtk_builder_get_object (builder, "btnNew");
-  GtkListStore *liststore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
+  //GtkListStore *liststore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
   //mobj.liststore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
   
   g_signal_connect (mobj.btnNew, "clicked", G_CALLBACK (btnNewClicked), &mobj);
