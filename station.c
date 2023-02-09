@@ -21,7 +21,7 @@ typedef struct _MyObjects{
   GtkWidget *btnExit;
   GtkWidget *btnNew;
   gchar *message;
-  //GtkListStore *liststore; //I don't know why this element make error Segment fault.
+  GtkListStore *liststore; 
 }MyObjects;
 
 static gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata){
@@ -63,12 +63,13 @@ static gboolean entStaName_release (GtkWidget *widget, GdkEventKey *event, gpoin
 }
 
 static void btnExit_clicked (GtkWidget *widget, gpointer userdata){
-  //MyObjects *mobj = (MyObjects*) userdata;
-  //g_object_unref (G_OBJECT(mobj->liststore));
+  MyObjects *mobj = (MyObjects*) userdata;
+  g_print ("exit: %s\n", mobj->message);
   gtk_main_quit();
 }
 
 static void btnNewClicked (GtkWidget *widget, gpointer userdata){
+  //MyObjects *mobj = (MyObjects*) userdata;
   MyObjects *mobj = (MyObjects*) userdata;
 
   GtkTreeSelection *selected = gtk_tree_view_get_selection (GTK_TREE_VIEW(mobj->treeview));
@@ -123,10 +124,11 @@ void rowChanged (GtkWidget *treeView, gpointer userdata) {
   }
 }
 
-static void activate(GtkApplication* app, MyObjects mobj, gpointer user_data)
-{
+static void activate(GtkApplication* app, gpointer user_data){
   GtkBuilder *builder;
   GtkWidget *window;
+  
+  MyObjects *mobj = (MyObjects*) user_data; // pointer to struct
 
   builder = gtk_builder_new_from_file("glade/tms_station.glade");
   //gtk_builder_connect_signals(builder, NULL);
@@ -136,29 +138,28 @@ static void activate(GtkApplication* app, MyObjects mobj, gpointer user_data)
   //gtk_window_set_position (GTK_WINDOW(window), GTK_WINDOW_TOPLEVEL);
   //gtk_window_set_gravity (GTK_WINDOW(window), GDK_GRAVITY_CENTER);
 
-  mobj.message = "เริ่มต้นโปรแกรม"; // In gdb this give an error Segment Fault. erro: p *mobj -> 0x0
-  g_print ("%s\n", mobj.message);
+  mobj->message = "เริ่มต้นโปรแกรม";
+  g_print ("%s\n", mobj->message);
 
-  mobj.treeview = (GtkWidget*) gtk_builder_get_object (builder, "treeView");
-  mobj.entStaCode = (GtkWidget*) gtk_builder_get_object (builder, "entStaCode");
-  mobj.entStaName = (GtkWidget*) gtk_builder_get_object (builder, "entStaName");
-  mobj.btnSave = (GtkWidget*) gtk_builder_get_object (builder, "btnSave");
-  mobj.btnDelete = (GtkWidget*) gtk_builder_get_object (builder, "btnDelete");
-  mobj.btnExit = (GtkWidget*) gtk_builder_get_object (builder, "btnExit");
-  mobj.btnNew = (GtkWidget*) gtk_builder_get_object (builder, "btnNew");
-  //GtkListStore *liststore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
-  //mobj.liststore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
+  mobj->treeview = (GtkWidget*) gtk_builder_get_object (builder, "treeView");
+  mobj->entStaCode = (GtkWidget*) gtk_builder_get_object (builder, "entStaCode");
+  mobj->entStaName = (GtkWidget*) gtk_builder_get_object (builder, "entStaName");
+  mobj->btnSave = (GtkWidget*) gtk_builder_get_object (builder, "btnSave");
+  mobj->btnDelete = (GtkWidget*) gtk_builder_get_object (builder, "btnDelete");
+  mobj->btnExit = (GtkWidget*) gtk_builder_get_object (builder, "btnExit");
+  mobj->btnNew = (GtkWidget*) gtk_builder_get_object (builder, "btnNew");
+  mobj->liststore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
   
-  g_signal_connect (mobj.btnNew, "clicked", G_CALLBACK (btnNewClicked), &mobj);
-  g_signal_connect (mobj.entStaCode, "key-release-event", G_CALLBACK (entStaCode_release), &mobj);
-  g_signal_connect (mobj.entStaName, "key-release-event", G_CALLBACK (entStaName_release), &mobj);
-  g_signal_connect (mobj.btnSave, "clicked", G_CALLBACK (btnSave_clicked), &mobj);
-  g_signal_connect (mobj.btnDelete, "clicked", G_CALLBACK (btnDelete_clicked), &mobj);
-  g_signal_connect (mobj.treeview, "cursor-changed", G_CALLBACK (rowChanged), &mobj);
-  g_signal_connect (mobj.btnExit, "clicked", G_CALLBACK (btnExit_clicked), NULL);
-  g_signal_connect (window, "destroy", G_CALLBACK (btnExit_clicked), NULL);
+  g_signal_connect (mobj->btnNew, "clicked", G_CALLBACK (btnNewClicked), mobj); // don't use & before mobj.
+  g_signal_connect (mobj->entStaCode, "key-release-event", G_CALLBACK (entStaCode_release), mobj);
+  g_signal_connect (mobj->entStaName, "key-release-event", G_CALLBACK (entStaName_release), mobj);
+  g_signal_connect (mobj->btnSave, "clicked", G_CALLBACK (btnSave_clicked), mobj);
+  g_signal_connect (mobj->btnDelete, "clicked", G_CALLBACK (btnDelete_clicked), mobj);
+  g_signal_connect (mobj->treeview, "cursor-changed", G_CALLBACK (rowChanged), mobj);
+  g_signal_connect (mobj->btnExit, "clicked", G_CALLBACK (btnExit_clicked), mobj);
+  g_signal_connect (window, "destroy", G_CALLBACK (btnExit_clicked), mobj);
   
-  gtk_widget_grab_focus (mobj.btnNew);
+  gtk_widget_grab_focus (mobj->btnNew);
   gtk_widget_show_all (window);
   
   g_object_unref (G_OBJECT(builder));
@@ -169,8 +170,13 @@ static void activate(GtkApplication* app, MyObjects mobj, gpointer user_data)
 int main (int argc, char *argv[]){
 	GtkApplication *app;
 	int status = 0;
+  
+  //Initialize struct before use it.
+  MyObjects mobj;
+  mobj.message = "โปรแกรมข้อมูลสถานี";
+  
 	app = gtk_application_new("pimpanya.com", G_APPLICATION_FLAGS_NONE);
-	g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+	g_signal_connect (app, "activate", G_CALLBACK (activate), &mobj); // do use & before mobj
 	status = g_application_run(G_APPLICATION (app), argc, argv);
 	g_object_unref (app);
 
