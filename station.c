@@ -20,6 +20,7 @@ typedef struct _MyObjects{
   GtkWidget *btnDelete;
   GtkWidget *btnExit;
   GtkWidget *btnNew;
+  gchar *message;
   //GtkListStore *liststore; //I don't know why this element make error Segment fault.
 }MyObjects;
 
@@ -134,6 +135,9 @@ static void activate(GtkApplication* app, MyObjects mobj, gpointer user_data)
   gtk_window_set_position (GTK_WINDOW(window), GTK_ALIGN_CENTER);
   //gtk_window_set_position (GTK_WINDOW(window), GTK_WINDOW_TOPLEVEL);
   //gtk_window_set_gravity (GTK_WINDOW(window), GDK_GRAVITY_CENTER);
+
+  mobj.message = "เริ่มต้นโปรแกรม";
+  g_print ("%s\n", mobj.message);
 
   mobj.treeview = (GtkWidget*) gtk_builder_get_object (builder, "treeView");
   mobj.entStaCode = (GtkWidget*) gtk_builder_get_object (builder, "entStaCode");
