@@ -104,7 +104,26 @@ static void btnNewClicked (GtkWidget *widget, gpointer userdata){
   gtk_widget_set_sensitive (mobj->btnSave, FALSE);
   gtk_widget_set_sensitive (mobj->btnDelete, FALSE);
   gtk_widget_grab_focus (mobj->entStaCode);
-  mobj->edit = 0; // New save
+  mobj->edit = 0; // New, save
+}
+
+// return pointer to GtkTreeIter, use *
+GtkTreeIter *getBeforeIter (const gchar* str, gint col, gpointer userdata){
+  MyObjects *mobj = (MyObjects*) userdata;
+  //gint number_of_rows = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(mobj->liststore), NULL);
+  mobj->model = gtk_tree_view_get_model (GTK_TREE_VIEW (mobj->treeview));
+  if (gtk_tree_model_get_iter_first (mobj->model, &mobj->iter)){
+    gchar *staCode;
+    do {
+      gtk_tree_model_get (mobj->model, &mobj->iter, col, &staCode, -1);
+      if (g_utf8_collate (str, staCode) < 0)
+        break;
+    } while (gtk_tree_model_iter_next (mobj->model, &mobj->iter));
+
+    g_free (staCode);
+  }
+  
+  return (&mobj->iter); // must use & before iter
 }
 
 static void btnSave_clicked (GtkWidget *widget, gpointer userdata){
@@ -113,15 +132,15 @@ static void btnSave_clicked (GtkWidget *widget, gpointer userdata){
   const gchar *staName = gtk_entry_get_text (GTK_ENTRY(mobj->entStaName));
   if (staCode[0] != '\0' && staName[0] != '\0'){
     g_print ("Save -> Code: %s, Name: %s\n", staCode, staName);
-    if (mobj->edit == 0){
-      gtk_list_store_append(mobj->liststore, &mobj->iter);
-      gtk_list_store_set(mobj->liststore, &mobj->iter, 0, staCode, 1, staName, -1);
-      gtk_tree_view_set_reorderable (GTK_TREE_VIEW (mobj->treeview), TRUE);
+    if (mobj->edit == 0){      
+      GtkTreeIter *befIter = getBeforeIter(staCode, 0, mobj);
+      gtk_list_store_insert_before (mobj->liststore, &mobj->iter, befIter);
+      gtk_list_store_set (mobj->liststore, &mobj->iter, 0, staCode, 1, staName, -1); // Insert value
     }else{
       GValue value = G_VALUE_INIT;
       g_value_init(&value, G_TYPE_STRING);
       g_value_set_string (&value, staName);
-      gtk_list_store_set_value (mobj->liststore, &mobj->iter, 1, &value);
+      gtk_list_store_set_value (mobj->liststore, &mobj->iter, 1, &value); // Update value
     }
     btnNewClicked(NULL, mobj);
   }
@@ -195,6 +214,7 @@ static void activate(GtkApplication* app, gpointer userdata){
   //gtk_window_set_gravity (GTK_WINDOW(window), GDK_GRAVITY_CENTER);
 
   mobj->message = "เริ่มต้นโปรแกรม";
+  mobj->edit = 0;
   g_print ("%s\n", mobj->message);
 
   mobj->treeview = (GtkWidget*) gtk_builder_get_object (builder, "treeView");
