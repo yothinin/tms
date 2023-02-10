@@ -134,7 +134,11 @@ static void btnSave_clicked (GtkWidget *widget, gpointer userdata){
     g_print ("Save -> Code: %s, Name: %s\n", staCode, staName);
     if (mobj->edit == 0){      
       GtkTreeIter *befIter = getBeforeIter(staCode, 0, mobj);
-      gtk_list_store_insert_before (mobj->liststore, &mobj->iter, befIter);
+      if (gtk_list_store_iter_is_valid (mobj->liststore, befIter)){
+        gtk_list_store_insert_before (mobj->liststore, &mobj->iter, befIter);
+      }else{
+        gtk_list_store_append (mobj->liststore, &mobj->iter);
+      }
       gtk_list_store_set (mobj->liststore, &mobj->iter, 0, staCode, 1, staName, -1); // Insert value
     }else{
       GValue value = G_VALUE_INIT;
