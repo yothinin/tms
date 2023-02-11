@@ -7,8 +7,12 @@
  * yothinin@pimpanya.com
  * 
 */
- 
+
 #include <gtk/gtk.h>
+#include <X11/Xlib.h>
+#include <X11/XKBlib.h>
+#include <X11/extensions/XKBrules.h>
+
 
 // The struct for keep widgets to send to another function
 // store value in function name: activate
@@ -29,7 +33,8 @@ typedef struct _MyObjects{
 }MyObjects;
 
 //---------------------------------------------------------------//
-void newform (MyObjects *mobj);
+GtkTreeIter *getIter (const gchar* str, gint col, int direction, gpointer userdata);
+void changeKey (gchar *new_group);
 void on_entStaCode_focus (GtkWidget *widget, gpointer userdata);
 static gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata);
 static gboolean entStaName_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata);
@@ -41,8 +46,29 @@ void rowChanged (GtkWidget *treeView, gpointer userdata);
 static void activate(GtkApplication* app, gpointer user_data);
 //--------------------------------------------------------------//
 
+void changeKey (gchar *new_group){
+  Display *dpy = XOpenDisplay(NULL);
+  XkbRF_VarDefsRec vd;
+  XkbRF_GetNamesProp(dpy, NULL, &vd);
+
+  gint i = 0;
+  const gchar *tok = strtok(vd.layout, ",");
+  while (tok != NULL) {
+    if (g_strcmp0 (tok, new_group) == 0)
+      break;
+    i++;
+    tok = strtok(NULL, ",");
+  }
+
+  XkbLockGroup(dpy, XkbUseCoreKbd, i); // change group
+  printf ("Changed keyboard to: %s\n", new_group);
+
+  XCloseDisplay(dpy);
+}
+
 void on_entStaCode_focus (GtkWidget *widget, gpointer userdata){
-  g_print ("entStaCode: focus\n");
+  changeKey ("us");
+  //g_print ("entStaCode: focus\n");
 }
 
 static gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata){
@@ -51,6 +77,18 @@ static gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpoin
   if (strcmp(gdk_keyval_name(event->keyval), "Return") == 0  ||
       strcmp(gdk_keyval_name(event->keyval), "KP_Enter") == 0){
 
+    const gchar *staCode = gtk_entry_get_text (GTK_ENTRY (mobj->entStaCode));
+    GtkTreeIter *checkIter = getIter(staCode, 0, 0, mobj); // direction = 0, equal
+
+    if (gtk_list_store_iter_is_valid (mobj->liststore, checkIter)){
+      const gchar *staName;
+      gtk_tree_model_get (GTK_TREE_MODEL (mobj->model), &mobj->iter, 1, &staName, -1);
+      gtk_entry_set_text (GTK_ENTRY (mobj->entStaName), staName);
+      gtk_widget_set_sensitive (mobj->entStaCode, FALSE);
+      mobj->edit=1;
+      gtk_button_set_label (GTK_BUTTON (mobj->btnSave), "แก้ไข");
+      gtk_widget_set_sensitive (mobj->btnSave, TRUE);
+    }
     gtk_widget_grab_focus (mobj->entStaName);
 
     return TRUE;
@@ -62,6 +100,11 @@ static gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpoin
   }
 
   return FALSE;
+}
+
+void on_entStaName_focus (GtkWidget *widget, gpointer userdata){
+  changeKey ("th");
+  //g_print ("entStaName: focus\n");
 }
 
 static gboolean entStaName_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata){
@@ -86,11 +129,11 @@ static gboolean entStaName_release (GtkWidget *widget, GdkEventKey *event, gpoin
 static void btnExit_clicked (GtkWidget *widget, gpointer userdata){
   MyObjects *mobj = (MyObjects*) userdata;
   g_print ("exit: %s\n", mobj->message);
+  changeKey ("us");
   gtk_main_quit();
 }
 
 static void btnNewClicked (GtkWidget *widget, gpointer userdata){
-  //MyObjects *mobj = (MyObjects*) userdata;
   MyObjects *mobj = (MyObjects*) userdata;
 
   GtkTreeSelection *selected = gtk_tree_view_get_selection (GTK_TREE_VIEW(mobj->treeview));
@@ -108,7 +151,8 @@ static void btnNewClicked (GtkWidget *widget, gpointer userdata){
 }
 
 // return pointer to GtkTreeIter, use *
-GtkTreeIter *getBeforeIter (const gchar* str, gint col, gpointer userdata){
+// direction, -1 = before, 0 = equal, 1 = after
+GtkTreeIter *getIter (const gchar* str, gint col, int direction, gpointer userdata){
   MyObjects *mobj = (MyObjects*) userdata;
   //gint number_of_rows = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(mobj->liststore), NULL);
   mobj->model = gtk_tree_view_get_model (GTK_TREE_VIEW (mobj->treeview));
@@ -116,8 +160,15 @@ GtkTreeIter *getBeforeIter (const gchar* str, gint col, gpointer userdata){
     gchar *staCode;
     do {
       gtk_tree_model_get (mobj->model, &mobj->iter, col, &staCode, -1);
-      if (g_utf8_collate (str, staCode) < 0)
-        break;
+      if (direction == -1)
+        if (g_utf8_collate (str, staCode) < 0) 
+          break;
+      if (direction == 0)
+        if (g_utf8_collate (str, staCode) == 0)
+          break;
+      if (direction == 1)
+        if (g_utf8_collate (str, staCode) > 0)
+          break;
     } while (gtk_tree_model_iter_next (mobj->model, &mobj->iter));
 
     g_free (staCode);
@@ -133,7 +184,7 @@ static void btnSave_clicked (GtkWidget *widget, gpointer userdata){
   if (staCode[0] != '\0' && staName[0] != '\0'){
     g_print ("Save -> Code: %s, Name: %s\n", staCode, staName);
     if (mobj->edit == 0){      
-      GtkTreeIter *befIter = getBeforeIter(staCode, 0, mobj);
+      GtkTreeIter *befIter = getIter(staCode, 0, -1, mobj); // direction -1
       if (gtk_list_store_iter_is_valid (mobj->liststore, befIter)){
         gtk_list_store_insert_before (mobj->liststore, &mobj->iter, befIter);
       }else{
@@ -169,25 +220,9 @@ static void btnDelete_clicked (GtkWidget *widget, gpointer userdata){
   }
 }
 
-void newform (MyObjects *mobj){
-  gtk_entry_set_text (GTK_ENTRY (mobj->entStaCode), "");
-  gtk_entry_set_text (GTK_ENTRY (mobj->entStaName), "");
-  gtk_button_set_label (GTK_BUTTON (mobj->btnSave), "บันทึก");
-  gtk_widget_set_sensitive (mobj->btnSave, FALSE);
-  gtk_widget_set_sensitive (mobj->btnDelete, FALSE);
-  gtk_widget_set_sensitive (mobj->entStaCode, FALSE);
-  gtk_widget_set_sensitive (mobj->entStaName, FALSE);
-  gtk_widget_grab_focus (mobj->btnNew);
-}
-
 void rowChanged (GtkWidget *treeView, gpointer userdata) {
   MyObjects *mobj = (MyObjects*) userdata;
- 
-  //GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(mobj->treeview));
-  //GtkTreeIter iter;
-  //GtkTreeSelection *selection;
   mobj->model = gtk_tree_view_get_model (GTK_TREE_VIEW (mobj->treeview));
-
   mobj->selected = gtk_tree_view_get_selection(GTK_TREE_VIEW(mobj->treeview));
   if (gtk_tree_selection_get_selected(mobj->selected, &mobj->model, &mobj->iter)){
     const gchar *staCode, *staName;
@@ -232,6 +267,7 @@ static void activate(GtkApplication* app, gpointer userdata){
   
   g_signal_connect (mobj->btnNew, "clicked", G_CALLBACK (btnNewClicked), mobj); // don't use & before mobj.
   g_signal_connect (mobj->entStaCode, "focus-in-event", G_CALLBACK (on_entStaCode_focus), mobj);
+  g_signal_connect (mobj->entStaName, "focus-in-event", G_CALLBACK (on_entStaName_focus), mobj);
   g_signal_connect (mobj->entStaCode, "key-release-event", G_CALLBACK (entStaCode_release), mobj);
   g_signal_connect (mobj->entStaName, "key-release-event", G_CALLBACK (entStaName_release), mobj);
   g_signal_connect (mobj->btnSave, "clicked", G_CALLBACK (btnSave_clicked), mobj);
