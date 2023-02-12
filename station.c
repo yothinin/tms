@@ -28,6 +28,7 @@ typedef struct _MyObjects{
   GtkWidget *btnDelete;
   GtkWidget *btnExit;
   GtkWidget *btnNew;
+  GtkWidget *btnDemo;
   gint edit;
   gchar *message;
 }MyObjects;
@@ -66,6 +67,24 @@ void changeKey (gchar *new_group){
   XCloseDisplay(dpy);
 }
 
+void btnDemo_clicked (GtkWidget *widget, gpointer userdata){
+  MyObjects *mobj = (MyObjects*) userdata;
+  g_print ("demo clicked\n");
+  
+  int i;
+  //GtkTreeSortable *sortable;
+  //sortable = GTK_TREE_SORTABLE (mobj->liststore);
+  //gtk_tree_sortable_set_sort_column_id (sortable, GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+  for (i = 0; i < 20000; i++){
+    gtk_list_store_append (mobj->liststore, &mobj->iter);
+    gchar code[6], name[6];
+    sprintf (code, "%05d", i);
+    sprintf (name, "%05d", i);
+    gtk_list_store_set (mobj->liststore, &mobj->iter, 0, code, 1, name, -1); // Insert value
+  }
+  //gtk_tree_sortable_set_sort_column_id (sortable, 0, GTK_SORT_ASCENDING);
+}
+  
 void on_entStaCode_focus (GtkWidget *widget, gpointer userdata){
   changeKey ("us");
   //g_print ("entStaCode: focus\n");
@@ -88,6 +107,7 @@ static gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpoin
       mobj->edit=1;
       gtk_button_set_label (GTK_BUTTON (mobj->btnSave), "แก้ไข");
       gtk_widget_set_sensitive (mobj->btnSave, TRUE);
+      gtk_widget_set_sensitive (mobj->btnDelete, TRUE);
     }
     gtk_widget_grab_focus (mobj->entStaName);
 
@@ -158,6 +178,7 @@ GtkTreeIter *getIter (const gchar* str, gint col, int direction, gpointer userda
   mobj->model = gtk_tree_view_get_model (GTK_TREE_VIEW (mobj->treeview));
   if (gtk_tree_model_get_iter_first (mobj->model, &mobj->iter)){
     gchar *staCode;
+    gint count=0;
     do {
       gtk_tree_model_get (mobj->model, &mobj->iter, col, &staCode, -1);
       if (direction == -1)
@@ -169,8 +190,10 @@ GtkTreeIter *getIter (const gchar* str, gint col, int direction, gpointer userda
       if (direction == 1)
         if (g_utf8_collate (str, staCode) > 0)
           break;
+      count++;
     } while (gtk_tree_model_iter_next (mobj->model, &mobj->iter));
 
+    g_print ("Count: %d\n", count);
     g_free (staCode);
   }
   
@@ -191,6 +214,10 @@ static void btnSave_clicked (GtkWidget *widget, gpointer userdata){
         gtk_list_store_append (mobj->liststore, &mobj->iter);
       }
       gtk_list_store_set (mobj->liststore, &mobj->iter, 0, staCode, 1, staName, -1); // Insert value
+      //GtkTreeSortable *sortable;
+      //gint column_id = 0;
+      //sortable = GTK_TREE_SORTABLE (mobj->liststore);
+      //gtk_tree_sortable_set_sort_column_id (sortable, column_id, GTK_SORT_ASCENDING);
     }else{
       GValue value = G_VALUE_INIT;
       g_value_init(&value, G_TYPE_STRING);
@@ -213,7 +240,13 @@ static void btnDelete_clicked (GtkWidget *widget, gpointer userdata){
       gtk_list_store_remove (GTK_LIST_STORE(mobj->model), &mobj->iter);
       gint number_of_rows = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(mobj->liststore), NULL);
       if (number_of_rows == 0){
-        //newform(mobj);
+        btnNewClicked (NULL, mobj);
+      }
+    }else{
+      g_print ("Treeview doesn't select.\n");
+      GtkTreeIter *checkIter = getIter(staCode, 0, 0, mobj); // direction = 0, equal
+      if (gtk_list_store_iter_is_valid (mobj->liststore, checkIter)){
+        gtk_list_store_remove (mobj->liststore, &mobj->iter);
         btnNewClicked (NULL, mobj);
       }
     }
@@ -264,6 +297,7 @@ static void activate(GtkApplication* app, gpointer userdata){
   mobj->btnExit = (GtkWidget*) gtk_builder_get_object (builder, "btnExit");
   mobj->btnNew = (GtkWidget*) gtk_builder_get_object (builder, "btnNew");
   mobj->liststore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
+  mobj->btnDemo = (GtkWidget*) gtk_builder_get_object (builder, "btnDemo");
   
   g_signal_connect (mobj->btnNew, "clicked", G_CALLBACK (btnNewClicked), mobj); // don't use & before mobj.
   g_signal_connect (mobj->entStaCode, "focus-in-event", G_CALLBACK (on_entStaCode_focus), mobj);
@@ -275,6 +309,7 @@ static void activate(GtkApplication* app, gpointer userdata){
   g_signal_connect (mobj->treeview, "cursor-changed", G_CALLBACK (rowChanged), mobj);
   g_signal_connect (mobj->btnExit, "clicked", G_CALLBACK (btnExit_clicked), mobj);
   g_signal_connect (window, "destroy", G_CALLBACK (btnExit_clicked), mobj);
+  g_signal_connect (mobj->btnDemo, "clicked", G_CALLBACK (btnDemo_clicked), mobj);
   
   gtk_widget_grab_focus (mobj->btnNew);
   gtk_widget_show_all (window);
