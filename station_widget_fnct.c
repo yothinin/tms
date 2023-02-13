@@ -9,9 +9,6 @@
 #define GTK_GTK_H
 #include <gtk/gtk.h>
 #endif //GTK_GTK_H
-#include <X11/Xlib.h>
-#include <X11/XKBlib.h>
-#include <X11/extensions/XKBrules.h>
 #include "functions.h"
 #include "station_struct.h"
 
