@@ -9,36 +9,6 @@
       <!-- column-name stationName -->
       <column type="gchararray"/>
     </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">10000</col>
-        <col id="1" translatable="yes">กรุงเทพฯ</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">10010</col>
-        <col id="1" translatable="yes">วิภาวดี</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">10011</col>
-        <col id="1" translatable="yes">วิภาวดี (เทศกาล)</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">34000</col>
-        <col id="1" translatable="yes">สุรินทร์</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">40000</col>
-        <col id="1" translatable="yes">ขอนแก่น</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">50000</col>
-        <col id="1" translatable="yes">เชียงใหม่</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">57000</col>
-        <col id="1" translatable="yes">เชียงราย</col>
-      </row>
-    </data>
   </object>
   <object class="GtkWindow" id="window">
     <property name="width-request">600</property>
