@@ -20,6 +20,7 @@ void btnExit_click (GtkWidget *widget, gpointer userdata){
   MyObjects *mobj = (MyObjects*) userdata;
   g_print ("exit: %s\n", mobj->message);
   change_keyb ("us");
+  gtk_widget_set_sensitive (mobj->btnExit, FALSE);
   gtk_main_quit();
 }
 
@@ -37,7 +38,6 @@ static void activate(GtkApplication* app, gpointer userdata){
   //gtk_window_set_position (GTK_WINDOW(window), GTK_WINDOW_TOPLEVEL);
   //gtk_window_set_gravity (GTK_WINDOW(window), GDK_GRAVITY_CENTER);
 
-  mobj->message = "เริ่มต้นโปรแกรม";
   mobj->edit = 0;
   g_print ("%s\n", mobj->message);
 
@@ -78,7 +78,7 @@ int main (int argc, char *argv[]){
   //Initialize struct before use it.
   MyObjects mobj;
   mobj.message = "โปรแกรมข้อมูลสถานี";
-  
+    
 	app = gtk_application_new("pimpanya.com", G_APPLICATION_FLAGS_NONE);
 	g_signal_connect (app, "activate", G_CALLBACK (activate), &mobj); // do use & before mobj
 	status = g_application_run(G_APPLICATION (app), argc, argv);
