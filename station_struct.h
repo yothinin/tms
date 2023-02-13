@@ -15,9 +15,9 @@ typedef struct _MyObjects{
   GtkListStore *liststore; 
   GtkTreeIter iter;
   GtkTreeSelection *selected;
-	GtkWidget *entStaCode; 
-	GtkWidget *entStaName;
-	GtkWidget *btnSave;
+  GtkWidget *entStaCode; 
+  GtkWidget *entStaName;
+  GtkWidget *btnSave;
   GtkWidget *btnDelete;
   GtkWidget *btnExit;
   GtkWidget *btnNew;
