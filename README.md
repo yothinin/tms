@@ -10,7 +10,7 @@ MySQL use .mysql_options file to store about client for connect to db
 
 in file: .mysql_options
 
-[client]
-database = *** db name ***
-user = *** user name ***
-password = *** your password ***
+[client]  
+database = *** db name ***  
+user = *** user name ***  
+password = *** your password ***  
