@@ -1,3 +1,9 @@
+/*
+ * station_widget_funct.c
+ * purpose to store all functions about the widgets in specified module
+ * name: [module]_widget_fnct.c
+ */
+
 
 #ifndef GTK_GTK_H
 #define GTK_GTK_H
@@ -7,7 +13,7 @@
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBrules.h>
 #include "functions.h"
-#include "struct_station.h"
+#include "station_struct.h"
 
 
 /*

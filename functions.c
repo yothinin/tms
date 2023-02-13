@@ -1,3 +1,8 @@
+/*
+ * functions.c
+ * purpose for store functions to share all module
+ */
+
 #ifndef GTK_GTK_H
 #define GTK_GTK_H
 #include <gtk/gtk.h>
@@ -5,7 +10,7 @@
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBrules.h>
-#include "struct_station.h"
+#include "station_struct.h"
 
 void change_keyb (gchar *new_group){
   Display *dpy = XOpenDisplay(NULL);
