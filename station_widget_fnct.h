@@ -1,3 +1,7 @@
+/*
+ * header for station_widget_fnct.c
+ */
+ 
 #ifndef STATION_WIDGET_FNCT_H
 #define STATION_WIDGET_FNCT_H
 extern void btnDemo_click (GtkWidget *widget, gpointer userdata);
