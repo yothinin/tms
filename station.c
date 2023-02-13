@@ -17,7 +17,7 @@
 // The struct for keep widgets to send to another function
 // store value in function name: activate
 typedef struct _MyObjects{
-  GtkWidget *treeview;
+  GtkWidget *treeview ;
   GtkTreeModel *model;
   GtkListStore *liststore; 
   GtkTreeIter iter;
@@ -34,7 +34,7 @@ typedef struct _MyObjects{
 }MyObjects;
 
 //---------------------------------------------------------------//
-GtkTreeIter *getIter (const gchar* str, gint col, int direction, gpointer userdata);
+GtkTreeIter *getIter (const gchar* str, gint col, int ext_condition, gpointer userdata);
 void changeKey (gchar *new_group);
 void on_entStaCode_focus (GtkWidget *widget, gpointer userdata);
 static gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata);
@@ -72,9 +72,6 @@ void btnDemo_clicked (GtkWidget *widget, gpointer userdata){
   g_print ("demo clicked\n");
   
   int i;
-  //GtkTreeSortable *sortable;
-  //sortable = GTK_TREE_SORTABLE (mobj->liststore);
-  //gtk_tree_sortable_set_sort_column_id (sortable, GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
   for (i = 0; i < 20000; i++){
     gtk_list_store_append (mobj->liststore, &mobj->iter);
     gchar code[6], name[6];
@@ -82,12 +79,10 @@ void btnDemo_clicked (GtkWidget *widget, gpointer userdata){
     sprintf (name, "%05d", i);
     gtk_list_store_set (mobj->liststore, &mobj->iter, 0, code, 1, name, -1); // Insert value
   }
-  //gtk_tree_sortable_set_sort_column_id (sortable, 0, GTK_SORT_ASCENDING);
 }
   
 void on_entStaCode_focus (GtkWidget *widget, gpointer userdata){
   changeKey ("us");
-  //g_print ("entStaCode: focus\n");
 }
 
 static gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata){
@@ -97,8 +92,8 @@ static gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpoin
       strcmp(gdk_keyval_name(event->keyval), "KP_Enter") == 0){
 
     const gchar *staCode = gtk_entry_get_text (GTK_ENTRY (mobj->entStaCode));
-    GtkTreeIter *checkIter = getIter(staCode, 0, 0, mobj); // direction = 0, equal
-
+    GtkTreeIter *checkIter = getIter(staCode, 0, 0, mobj); // ext_condition = 0, equal
+                                                           // use equal because search to find the code.
     if (gtk_list_store_iter_is_valid (mobj->liststore, checkIter)){
       const gchar *staName;
       gtk_tree_model_get (GTK_TREE_MODEL (mobj->model), &mobj->iter, 1, &staName, -1);
@@ -124,7 +119,6 @@ static gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpoin
 
 void on_entStaName_focus (GtkWidget *widget, gpointer userdata){
   changeKey ("th");
-  //g_print ("entStaName: focus\n");
 }
 
 static gboolean entStaName_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata){
@@ -171,29 +165,32 @@ static void btnNewClicked (GtkWidget *widget, gpointer userdata){
 }
 
 // return pointer to GtkTreeIter, use *
-// direction, -1 = before, 0 = equal, 1 = after
-GtkTreeIter *getIter (const gchar* str, gint col, int direction, gpointer userdata){
+// ex_condition, we stop looping when result is -1 = before, 0 = equal, 1 = after
+GtkTreeIter *getIter (const gchar* str, gint col, int ext_condition, gpointer userdata){
   MyObjects *mobj = (MyObjects*) userdata;
-  //gint number_of_rows = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(mobj->liststore), NULL);
+  gint number_of_rows = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(mobj->liststore), NULL);
   mobj->model = gtk_tree_view_get_model (GTK_TREE_VIEW (mobj->treeview));
   if (gtk_tree_model_get_iter_first (mobj->model, &mobj->iter)){
     gchar *staCode;
-    gint count=0;
+    gint count=1;
     do {
       gtk_tree_model_get (mobj->model, &mobj->iter, col, &staCode, -1);
-      if (direction == -1)
-        if (g_utf8_collate (str, staCode) < 0) 
-          break;
-      if (direction == 0)
-        if (g_utf8_collate (str, staCode) == 0)
-          break;
-      if (direction == 1)
-        if (g_utf8_collate (str, staCode) > 0)
-          break;
+
+      if (ext_condition == -1 && g_utf8_collate (str, staCode) < 0) // sta after staCode, exit and insert before staCode.
+        break;
+      if (ext_condition == 0 && g_utf8_collate (str, staCode) == 0) // str equal staCode, exit and update this staCode.
+        break;
+      if (ext_condition == 1 && g_utf8_collate (str, staCode) > 0)  // str before staCode, exit we don't use it here.
+        break;
+
       count++;
     } while (gtk_tree_model_iter_next (mobj->model, &mobj->iter));
 
-    g_print ("Count: %d\n", count);
+    if (count > number_of_rows)
+      g_print ("EOF, data not found (all=%d)\n", number_of_rows);
+    else
+      g_print ("found at: %d of %d\n", count, number_of_rows);
+    
     g_free (staCode);
   }
   
@@ -206,26 +203,29 @@ static void btnSave_clicked (GtkWidget *widget, gpointer userdata){
   const gchar *staName = gtk_entry_get_text (GTK_ENTRY(mobj->entStaName));
   if (staCode[0] != '\0' && staName[0] != '\0'){
     g_print ("Save -> Code: %s, Name: %s\n", staCode, staName);
-    if (mobj->edit == 0){      
-      GtkTreeIter *befIter = getIter(staCode, 0, -1, mobj); // direction -1
+    if (mobj->edit == 0){ // Insert mode.
+      GtkTreeIter *befIter = getIter(staCode, 0, -1, mobj); // ext_condition -1
       if (gtk_list_store_iter_is_valid (mobj->liststore, befIter)){
         gtk_list_store_insert_before (mobj->liststore, &mobj->iter, befIter);
       }else{
         gtk_list_store_append (mobj->liststore, &mobj->iter);
       }
       gtk_list_store_set (mobj->liststore, &mobj->iter, 0, staCode, 1, staName, -1); // Insert value
-      //GtkTreeSortable *sortable;
-      //gint column_id = 0;
-      //sortable = GTK_TREE_SORTABLE (mobj->liststore);
-      //gtk_tree_sortable_set_sort_column_id (sortable, column_id, GTK_SORT_ASCENDING);
-    }else{
+    }else{ // Edit mode.
       GValue value = G_VALUE_INIT;
       g_value_init(&value, G_TYPE_STRING);
       g_value_set_string (&value, staName);
       gtk_list_store_set_value (mobj->liststore, &mobj->iter, 1, &value); // Update value
+      
+      // ---------- check GValue --------------//
+      if (G_VALUE_HOLDS_STRING(&value)) {
+        const gchar *string_value = g_value_get_string(&value);
+        g_print("Value is a string: %s\n", string_value);
+      }
+    
     }
     btnNewClicked(NULL, mobj);
-  }
+  } // if staCode and Name are empty, we do nothing.
 }
 
 static void btnDelete_clicked (GtkWidget *widget, gpointer userdata){
@@ -244,7 +244,7 @@ static void btnDelete_clicked (GtkWidget *widget, gpointer userdata){
       }
     }else{
       g_print ("Treeview doesn't select.\n");
-      GtkTreeIter *checkIter = getIter(staCode, 0, 0, mobj); // direction = 0, equal
+      GtkTreeIter *checkIter = getIter(staCode, 0, 0, mobj); // ext_condition = 0, search for equal
       if (gtk_list_store_iter_is_valid (mobj->liststore, checkIter)){
         gtk_list_store_remove (mobj->liststore, &mobj->iter);
         btnNewClicked (NULL, mobj);
