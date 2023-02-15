@@ -10,7 +10,7 @@ create table station(
 
 #alter table station change column sta_id int(11) not null auto_increment;
 alter table station modify sta_id int not null auto_increment;
-alter table station add index `idx_stacode` (user_code);
+alter table station add index `idx_stacode` (sta_code);
 
 insert into station (sta_code, sta_name) values ("10000", "กรุงเทพฯ");
 insert into station (sta_code, sta_name) values ("10001", "วิภาวดี");

@@ -52,14 +52,16 @@ GtkTreeIter *get_iter (const gchar* str, gint col, int ext_condition, gpointer u
       if (ext_condition == 1 && g_utf8_collate (str, staCode) > 0) break;
 
       count++;
+      g_free (staCode); // addnew
     } while (gtk_tree_model_iter_next (mobj->model, &mobj->iter));
 
-    if (count > number_of_rows)
+    if (count > number_of_rows){
       g_print ("EOF, data not found (ALL=%d)\n", number_of_rows);
-    else
+      return NULL;
+    }else{
       g_print ("found at: %d of %d\n", count, number_of_rows);
-    
-    g_free (staCode);
+    }
+    //g_free (staCode); //move to do block
   }
   
   return (&mobj->iter); // must use & before iter

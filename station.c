@@ -12,9 +12,9 @@
 #define GTK_GTK_H
 #include <gtk/gtk.h>
 #endif //GTK_GTK_H
+#include "mysql_fnct.h"
 #include "functions.h"
 #include "station_widget_fnct.h"
-#include "mysql_fnct.h"
 #include "station_struct.h"
 
 void btnExit_click (GtkWidget *widget, gpointer userdata){
@@ -52,7 +52,7 @@ static void activate(GtkApplication* app, gpointer userdata){
   mobj->liststore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
   mobj->btnDemo = (GtkWidget*) gtk_builder_get_object (builder, "btnDemo");
   
-  MYSQL *conn = connect_to_db();
+  MYSQL *conn;
   conn = connect_to_db();
   if (conn == NULL) {
     fprintf(stderr, "Error: failed to connect to database\n");
