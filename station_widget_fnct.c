@@ -174,14 +174,13 @@ void btnSave_click(GtkWidget *widget, gpointer userdata) {
   if (staCode[0] != '\0' && staName[0] != '\0') {
     g_print("Save -> Code: %s, Name: %s\n", staCode, staName);
 
-    Station station = {g_strdup(staCode), g_strdup(staName)}; //Change to this line later.
+    Station station = {g_strdup(staCode), g_strdup(staName)};
     if (mobj->edit == 0) { // Insert mode.
       gboolean result = insertStation (station);
-      update_list_store(mobj, staCode, staName, result);
-      update_tree_view(mobj, staCode, staName, TRUE); //need to clean or optimized function later.
+      update_tree_view(mobj, station, TRUE);
     } else { // Edit mode.
       gboolean result = updateStationName(station);
-      update_list_store(mobj, staCode, staName, result);
+      update_list_store(mobj, station, result);
     }
     
     g_free(station.staCode);
@@ -191,8 +190,8 @@ void btnSave_click(GtkWidget *widget, gpointer userdata) {
   }
 }
 
-void update_tree_view(MyObjects *mobj, const gchar *staCode, const gchar *staName, gboolean result) {
-  GtkTreeIter *befIter = get_iter(staCode, 0, -1, mobj); // ext_condition -1
+void update_tree_view(MyObjects *mobj, Station station, gboolean result) {
+  GtkTreeIter *befIter = get_iter(station.staCode, 0, -1, mobj); // ext_condition -1
 
   if (befIter == NULL) {
     gtk_list_store_append(mobj->liststore, &mobj->iter);
@@ -200,17 +199,16 @@ void update_tree_view(MyObjects *mobj, const gchar *staCode, const gchar *staNam
     gtk_list_store_insert_before(mobj->liststore, &mobj->iter, befIter);
   }
 
-  gtk_list_store_set(mobj->liststore, &mobj->iter, 0, staCode, 1, staName, -1); // Insert value
-  update_list_store(mobj, staCode, staName, result);
+  gtk_list_store_set(mobj->liststore, &mobj->iter, 0, station.staCode, 1, station.staName, -1); // Insert value
 }
 
-void update_list_store(MyObjects *mobj, const gchar *staCode, const gchar *staName, gboolean result) {
+void update_list_store(MyObjects *mobj, Station station, gboolean result) {
   if (result) {
-    GtkTreeIter *checkIter = get_iter(staCode, 0, 0, mobj); // ext_condition = 0, equal
+    GtkTreeIter *checkIter = get_iter(station.staCode, 0, 0, mobj); // ext_condition = 0, equal
     if (checkIter != NULL){
       GValue value = G_VALUE_INIT;
       g_value_init(&value, G_TYPE_STRING);
-      g_value_set_string(&value, staName);
+      g_value_set_string(&value, station.staName);
       gtk_list_store_set_value(mobj->liststore, &mobj->iter, 1, &value); // Update value
     }
   }
