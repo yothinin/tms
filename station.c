@@ -12,10 +12,11 @@
 #define GTK_GTK_H
 #include <gtk/gtk.h>
 #endif //GTK_GTK_H
-#include "mysql_fnct.h"
+
 #include "functions.h"
-#include "station_widget_fnct.h"
-#include "station_struct.h"
+#include "mysql_station_fnct.h"
+#include "widget_station_fnct.h"
+#include "struct_station.h"
 
 void btnExit_click (GtkWidget *widget, gpointer userdata){
   MyObjects *mobj = (MyObjects*) userdata;
