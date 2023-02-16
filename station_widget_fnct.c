@@ -148,7 +148,6 @@ void btnDelete_click (GtkWidget *widget, gpointer userdata){
         g_print("Failed to delete station.\n");
       }
     }
-  
 }
 
 //void row_change (GtkWidget *treeView, gpointer userdata) {

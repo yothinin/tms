@@ -66,3 +66,11 @@ GtkTreeIter *get_iter (const gchar* str, gint col, int ext_condition, gpointer u
   
   return (&mobj->iter); // must use & before iter
 }
+
+void display_warning_message(const gchar *message) {
+  GtkWidget *dialog;
+  dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK, "%s", message);
+  gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
+}
+

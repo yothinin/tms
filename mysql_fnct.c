@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <mariadb/mysql.h>
 #include "mysql_fnct.h"
+#include "functions.h"
 
 #define CONFIG_FILE ".mysql_options"
 #define GROUP_NAME "client"
@@ -117,23 +118,45 @@ gboolean insertStation (Station station) {
   return result;
 }
 
-gboolean deleteStation (const gchar *staCode) {
+//gboolean deleteStation (const gchar *staCode) {
+  //MYSQL *conn = connect_to_db();
+  //gboolean result = FALSE;
+  //gchar *sql = g_strdup_printf ("DELETE FROM station WHERE sta_code = '%s'", staCode);
+
+  //if (query (conn, sql) == 0){
+    //result = TRUE;
+  //}else {
+    //fprintf(stderr, "deleteStation::Error: failed to execute query\n");
+    //g_free (sql);
+    //close_db_connection(conn);
+    //exit (1);
+  //}
+
+  //g_free (sql);
+  //mysql_close (conn);
+
+  //return result;
+//}
+
+gboolean deleteStation(const gchar *staCode) {
   MYSQL *conn = connect_to_db();
   gboolean result = FALSE;
-  gchar *sql = g_strdup_printf ("DELETE FROM station WHERE sta_code = '%s'", staCode);
+  gchar *sql = g_strdup_printf("DELETE FROM station WHERE sta_code = '%s'", staCode);
 
-  if (query (conn, sql) == 0){
+  if (query(conn, sql) == 0) {
     result = TRUE;
-  }else {
-    fprintf(stderr, "Error: failed to execute query\n");
-    g_free (sql);
-    close_db_connection(conn);
-    exit (1);
+  } else {
+    gchar *warning_msg = g_strdup_printf("Cannot delete station '%s' because it is used in the route table.", staCode);
+    display_warning_message(warning_msg);  // display the warning message
+    g_free(warning_msg);
+    //g_free(sql);
+    //close_db_connection(conn);
   }
 
-  g_free (sql);
-  mysql_close (conn);
+  g_free(sql);
+  mysql_close(conn);
 
   return result;
 }
+
 
