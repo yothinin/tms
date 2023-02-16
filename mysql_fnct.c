@@ -49,7 +49,8 @@ int delete(MYSQL *conn, const char *sql) {
   return query(conn, sql);
 }
 
-Station getStationNameByCode (MYSQL *conn, Station station){
+Station getStationNameByCode (Station station){
+  MYSQL *conn = connect_to_db ();
   MYSQL_RES *result;
   MYSQL_ROW row;
   // Build the query using the station code
@@ -115,3 +116,24 @@ gboolean insertStation (Station station) {
 
   return result;
 }
+
+gboolean deleteStation (const gchar *staCode) {
+  MYSQL *conn = connect_to_db();
+  gboolean result = FALSE;
+  gchar *sql = g_strdup_printf ("DELETE FROM station WHERE sta_code = '%s'", staCode);
+
+  if (query (conn, sql) == 0){
+    result = TRUE;
+  }else {
+    fprintf(stderr, "Error: failed to execute query\n");
+    g_free (sql);
+    close_db_connection(conn);
+    exit (1);
+  }
+
+  g_free (sql);
+  mysql_close (conn);
+
+  return result;
+}
+

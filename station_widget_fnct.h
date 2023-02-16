@@ -16,6 +16,7 @@ extern void btnNew_click (GtkWidget *widget, gpointer userdata);
 extern void btnSave_click (GtkWidget *widget, gpointer user_data);
 extern void btnDelete_click (GtkWidget *widget, gpointer user_data);
 extern void row_change (GtkWidget *treeView, gpointer userdata);
-void update_tree_view(MyObjects *mobj, Station station, gboolean result);
-void update_list_store(MyObjects *mobj, Station station, gboolean result);
+extern void update_tree_view(MyObjects *mobj, Station station, gboolean result);
+extern void update_list_store(MyObjects *mobj, Station station, gboolean result);
+extern void insertDataToListStore(MyObjects *mobj);
 #endif // STATION_WIDGET_H

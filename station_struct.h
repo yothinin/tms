@@ -13,6 +13,11 @@
 // Station is struct for store staCode and staName to passing
 // to functin in mysql_fnct.c
 
+typedef struct {
+  gchar *staCode;
+  gchar *staName;
+} Station;
+
 typedef struct _MyObjects{
   GtkWidget *treeview ;
   GtkTreeModel *model;
@@ -29,11 +34,6 @@ typedef struct _MyObjects{
   gint edit;
   gchar *message;
 }MyObjects;
-
-typedef struct {
-  gchar *staCode;
-  gchar *staName;
-} Station;
 
 #endif // STATION_STRUCT_H
 

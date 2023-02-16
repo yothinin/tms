@@ -52,41 +52,8 @@ static void activate(GtkApplication* app, gpointer userdata){
   mobj->liststore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
   mobj->btnDemo = (GtkWidget*) gtk_builder_get_object (builder, "btnDemo");
   
-  MYSQL *conn;
-  conn = connect_to_db();
-  if (conn == NULL) {
-    fprintf(stderr, "Error: failed to connect to database\n");
-    exit (1);
-  }
-  
-  const char *sql = "SELECT sta_code, sta_name FROM station ORDER BY sta_code";
-  if (query(conn, sql)) {
-    fprintf(stderr, "Error: failed to execute query\n");
-    close_db_connection(conn);
-    exit (1);
-  }
-  
-  MYSQL_RES *result = mysql_store_result(conn);
-  if (result == NULL) {
-    fprintf(stderr, "Error: failed to get result\n");
-    close_db_connection(conn);
-    exit (1);
-  }
-  
-  int num_fields = mysql_num_fields(result);
-  MYSQL_ROW row;
-  while ((row = mysql_fetch_row(result))) {
-    gtk_list_store_append (mobj->liststore, &mobj->iter);
-    for (int i = 0; i < num_fields; i++) {
-      //printf("%s\t", row[i] ? row[i] : "NULL");
-      gtk_list_store_set (mobj->liststore, &mobj->iter, i, row[i], -1);
-    }
-    //printf("\n");
-  }
-  
-  mysql_free_result(result);
-  close_db_connection(conn);
-  
+  insertDataToListStore(mobj); // Insert data to GtkListStore at the first run.
+
   g_signal_connect (mobj->btnNew, "clicked", G_CALLBACK (btnNew_click), mobj); // don't use & before mobj.
   g_signal_connect (mobj->entStaCode, "focus-in-event", G_CALLBACK (entStaCode_focus), mobj);
   g_signal_connect (mobj->entStaName, "focus-in-event", G_CALLBACK (entStaName_focus), mobj);
@@ -99,6 +66,11 @@ static void activate(GtkApplication* app, gpointer userdata){
   g_signal_connect (window, "destroy", G_CALLBACK (btnExit_click), mobj);
   g_signal_connect (mobj->btnDemo, "clicked", G_CALLBACK (btnDemo_click), mobj);
   
+  gtk_widget_set_sensitive (mobj->entStaCode, FALSE);
+  gtk_widget_set_sensitive (mobj->entStaName, FALSE);
+  gtk_widget_set_sensitive (mobj->btnSave, FALSE);
+  gtk_widget_set_sensitive (mobj->btnDelete, FALSE);
+
   gtk_widget_grab_focus (mobj->btnNew);
   gtk_widget_show_all (window);
   

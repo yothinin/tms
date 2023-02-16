@@ -10,7 +10,8 @@ int query(MYSQL *conn, const char *sql);
 int insert(MYSQL *conn, const char *sql);
 int update(MYSQL *conn, const char *sql);
 int delete(MYSQL *conn, const char *sql);
-Station getStationNameByCode (MYSQL *conn, Station station);
+Station getStationNameByCode (Station station);
 gboolean updateStationName (Station station);
 gboolean insertStation (Station station);
+gboolean deleteStation (const gchar *staCode);
 #endif

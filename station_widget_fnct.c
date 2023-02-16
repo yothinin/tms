@@ -51,12 +51,12 @@ gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpointer use
     //const gchar *staCode = gtk_entry_get_text (GTK_ENTRY (mobj->entStaCode));
     //GtkTreeIter *checkIter = get_iter(staCode, 0, 0, mobj); // ext_condition = 0, equal
                                                            // use equal because search to find the code.
-    MYSQL *conn = connect_to_db();
+    //MYSQL *conn = connect_to_db();
     const gchar *const_staCode = gtk_entry_get_text(GTK_ENTRY(mobj->entStaCode));
     gchar *staCode = g_strdup(const_staCode);
     Station station = {staCode, NULL};
 
-    station = getStationNameByCode (conn, station);
+    station = getStationNameByCode (station);
     gtk_entry_set_text (GTK_ENTRY (mobj->entStaName), station.staName == NULL?"":station.staName);
 
     if (station.staName != NULL){
@@ -125,28 +125,49 @@ void btnNew_click (GtkWidget *widget, gpointer userdata){
 
 void btnDelete_click (GtkWidget *widget, gpointer userdata){
   MyObjects *mobj = (MyObjects*) userdata;
-  const gchar *staCode = gtk_entry_get_text (GTK_ENTRY(mobj->entStaCode));
-  const gchar *staName = gtk_entry_get_text (GTK_ENTRY(mobj->entStaName));
-  if (staCode[0] != '\0'){
-    g_print ("Delete -> Code: %s, %s\n", staCode, staName);
-    mobj->model = gtk_tree_view_get_model(GTK_TREE_VIEW(mobj->treeview));
-    mobj->selected = gtk_tree_view_get_selection(GTK_TREE_VIEW(mobj->treeview));
-    if (gtk_tree_selection_get_selected(mobj->selected, &mobj->model, &mobj->iter)){
-      gtk_list_store_remove (GTK_LIST_STORE(mobj->model), &mobj->iter);
-      gint number_of_rows = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(mobj->liststore), NULL);
-      if (number_of_rows == 0){
-        btnNew_click (NULL, mobj);
-      }
-    }else{
-      g_print ("Treeview doesn't select.\n");
-      GtkTreeIter *checkIter = get_iter(staCode, 0, 0, mobj); // ext_condition = 0, search for equal
-      if (gtk_list_store_iter_is_valid (mobj->liststore, checkIter)){
-        gtk_list_store_remove (mobj->liststore, &mobj->iter);
-        btnNew_click (NULL, mobj);
+  
+    const gchar *staCode = gtk_entry_get_text (GTK_ENTRY(mobj->entStaCode));
+    const gchar *staName = gtk_entry_get_text (GTK_ENTRY(mobj->entStaName));
+    if (staCode[0] != '\0'){
+      g_print ("Delete -> Code: %s, %s\n", staCode, staName);
+      gboolean result = deleteStation(staCode);
+      if (result) {
+        Station station = {g_strdup (staCode), g_strdup (staName)};
+        GtkTreeIter *selIter = get_iter (staCode, 0, 0, mobj);
+        if (selIter != NULL){
+          gtk_list_store_remove (GTK_LIST_STORE (mobj->model), &mobj->iter);
+        }
+        g_free (station.staCode);
+        g_free (station.staName);
+        
+        gint number_of_rows = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(mobj->liststore), NULL);
+        if (number_of_rows == 0)
+          btnNew_click (NULL, mobj);
+
+      } else {
+        g_print("Failed to delete station.\n");
       }
     }
-  }
+  
 }
+
+//void row_change (GtkWidget *treeView, gpointer userdata) {
+  //MyObjects *mobj = (MyObjects*) userdata;
+  //mobj->model = gtk_tree_view_get_model (GTK_TREE_VIEW (mobj->treeview));
+  //mobj->selected = gtk_tree_view_get_selection(GTK_TREE_VIEW(mobj->treeview));
+  //if (gtk_tree_selection_get_selected(mobj->selected, &mobj->model, &mobj->iter)){
+    //const gchar *staCode, *staName;
+    //gtk_tree_model_get (mobj->model, &mobj->iter, 0, &staCode, 1, &staName, -1);
+    //gtk_entry_set_text (GTK_ENTRY(mobj->entStaCode), staCode);
+    //gtk_entry_set_text (GTK_ENTRY(mobj->entStaName), staName);
+    //gtk_widget_set_sensitive (mobj->entStaCode, FALSE);
+    //gtk_widget_set_sensitive (mobj->entStaName, TRUE);
+    //gtk_button_set_label (GTK_BUTTON(mobj->btnSave), "แก้ไข");
+    //gtk_widget_set_sensitive (mobj->btnSave, TRUE);
+    //gtk_widget_set_sensitive (mobj->btnDelete, TRUE);
+    //mobj->edit = 1; //edit
+  //}
+//}
 
 void row_change (GtkWidget *treeView, gpointer userdata) {
   MyObjects *mobj = (MyObjects*) userdata;
@@ -156,7 +177,19 @@ void row_change (GtkWidget *treeView, gpointer userdata) {
     const gchar *staCode, *staName;
     gtk_tree_model_get (mobj->model, &mobj->iter, 0, &staCode, 1, &staName, -1);
     gtk_entry_set_text (GTK_ENTRY(mobj->entStaCode), staCode);
-    gtk_entry_set_text (GTK_ENTRY(mobj->entStaName), staName);
+    
+    // Get the station name from the database
+    //MYSQL *conn = connect_to_db();
+    Station station = {g_strdup (staCode), g_strdup (staName)};
+    station = getStationNameByCode (station);
+    if (station.staName != NULL) {
+      gtk_entry_set_text (GTK_ENTRY(mobj->entStaName), station.staName);
+      gtk_list_store_set(mobj->liststore, &mobj->iter, 1, station.staName, -1);
+      g_free(station.staName);
+    } else {
+      gtk_entry_set_text (GTK_ENTRY(mobj->entStaName), "");
+      gtk_list_store_remove (GTK_LIST_STORE (mobj->model), &mobj->iter);
+    }
     gtk_widget_set_sensitive (mobj->entStaCode, FALSE);
     gtk_widget_set_sensitive (mobj->entStaName, TRUE);
     gtk_button_set_label (GTK_BUTTON(mobj->btnSave), "แก้ไข");
@@ -177,10 +210,12 @@ void btnSave_click(GtkWidget *widget, gpointer userdata) {
     Station station = {g_strdup(staCode), g_strdup(staName)};
     if (mobj->edit == 0) { // Insert mode.
       gboolean result = insertStation (station);
-      update_tree_view(mobj, station, TRUE);
+      if (result)
+        update_tree_view(mobj, station, TRUE);
     } else { // Edit mode.
       gboolean result = updateStationName(station);
-      update_list_store(mobj, station, result);
+      if (result)
+        update_list_store(mobj, station, result);
     }
     
     g_free(station.staCode);
@@ -191,9 +226,10 @@ void btnSave_click(GtkWidget *widget, gpointer userdata) {
 }
 
 void update_tree_view(MyObjects *mobj, Station station, gboolean result) {
-  GtkTreeIter *befIter = get_iter(station.staCode, 0, -1, mobj); // ext_condition -1
+  gint number_of_rows = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(mobj->liststore), NULL);
 
-  if (befIter == NULL) {
+  GtkTreeIter *befIter = get_iter(station.staCode, 0, -1, mobj); // ext_condition -1
+  if (befIter == NULL || number_of_rows == 0) {
     gtk_list_store_append(mobj->liststore, &mobj->iter);
   } else {
     gtk_list_store_insert_before(mobj->liststore, &mobj->iter, befIter);
@@ -212,4 +248,39 @@ void update_list_store(MyObjects *mobj, Station station, gboolean result) {
       gtk_list_store_set_value(mobj->liststore, &mobj->iter, 1, &value); // Update value
     }
   }
+}
+
+void insertDataToListStore(MyObjects *mobj) {
+  MYSQL *conn;
+  conn = connect_to_db();
+  if (conn == NULL) {
+    fprintf(stderr, "Error: failed to connect to database\n");
+    exit (1);
+  }
+  
+  const char *sql = "SELECT sta_code, sta_name FROM station ORDER BY sta_code";
+  if (query(conn, sql)) {
+    fprintf(stderr, "Error: failed to execute query\n");
+    close_db_connection(conn);
+    exit (1);
+  }
+  
+  MYSQL_RES *result = mysql_store_result(conn);
+  if (result == NULL) {
+    fprintf(stderr, "Error: failed to get result\n");
+    close_db_connection(conn);
+    exit (1);
+  }
+  
+  int num_fields = mysql_num_fields(result);
+  MYSQL_ROW row;
+  while ((row = mysql_fetch_row(result))) {
+    gtk_list_store_append (mobj->liststore, &mobj->iter);
+    for (int i = 0; i < num_fields; i++) {
+      gtk_list_store_set (mobj->liststore, &mobj->iter, i, row[i], -1);
+    }
+  }
+  
+  mysql_free_result(result);
+  close_db_connection(conn);
 }
