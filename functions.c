@@ -10,7 +10,7 @@
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBrules.h>
-#include "station_struct.h"
+#include "struct_station.h"
 
 void change_keyb (gchar *new_group){
   Display *dpy = XOpenDisplay(NULL);
