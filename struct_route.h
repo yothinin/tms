@@ -22,26 +22,32 @@ typedef struct {
 } Route;
 
 typedef struct {
-  GtkTreeModel *
-} ComboBoxFrom;
-
-typedef struct {
-} ComboBoxTo;
-
-typedef struct {
   GtkWidget *treeview ;
   GtkTreeModel *model;
-  GtkListStore *store; 
-  GtkTreeIter iter;
-  GtkTreeSelection *selected;
+  GtkListStore *treeListStore; 
+  GtkTreeIter treeIter;
+  GtkTreeSelection *treeSelected;
   GtkWidget *entRoute; 
-  GtkWidget *cmbType;
-  GtkWidget *cmbFrom;
-  GtkWidget *cmbDest;
+  GtkWidget *btnNew;
   GtkWidget *btnSave;
   GtkWidget *btnDelete;
   GtkWidget *btnExit;
   gint edit;
+
+  GtkWidget *cmbType;
+  GtkTreeModel *typeModel;
+  GtkListStore *typeListStore;
+  GtkTreeIter *typeIter;
+
+  GtkWidget *cmbFrom;
+  GtkTreeModel *fromModel;
+  GtkListStore *fromListStore;
+  GtkTreeIter *fromIter;
+
+  GtkWidget *cmbDest;
+  GtkTreeModel *destModel;
+  GtkListStore *destListStore;
+  GtkTreeIter *destIter;
 } RouteWidgets;
 
 #endif // STRUCT_ROUTE_H

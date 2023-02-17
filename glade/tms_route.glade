@@ -18,11 +18,11 @@
       <column type="gchararray"/>
     </columns>
   </object>
-  <object class="GtkListStore" id="routeType">
+  <object class="GtkListStore" id="routeDirection">
     <columns>
-      <!-- column-name type_code -->
+      <!-- column-name direct_code -->
       <column type="gchararray"/>
-      <!-- column-name type_name -->
+      <!-- column-name direct_name -->
       <column type="gchararray"/>
     </columns>
     <data>
@@ -277,7 +277,7 @@
                       <object class="GtkComboBox" id="cmbType">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="model">routeType</property>
+                        <property name="model">routeDirection</property>
                         <child>
                           <object class="GtkCellRendererText" id="destStation1"/>
                           <attributes>

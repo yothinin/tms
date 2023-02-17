@@ -5,6 +5,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <glib/gprintf.h>
+#include "struct_route.h"
 
 GtkBuilder* builder;
 GtkWidget *window;
@@ -273,29 +274,100 @@ void destChanged (GtkWidget *widget, gpointer userdata){
   g_free (stationFrom);
 }
 
-int main(int argc, char *argv[]){
+static void activate(GtkApplication* app, gpointer userdata){
+  GtkBuilder *builder;
+  GtkWidget *window;
 
-  gtk_init(&argc, &argv);
+  MyObjects *mobj = (MyObjects*) userdata; // pointer to struct
 
   builder = gtk_builder_new_from_file("glade/tms_route.glade");
-  gtk_builder_connect_signals(builder, NULL);
-
+  
   window = (GtkWidget*)gtk_builder_get_object(builder, "window");
-  gtk_window_set_position (GTK_WINDOW(window), GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_gravity (GTK_WINDOW(window), GDK_GRAVITY_CENTER);
+  gtk_window_set_position (GTK_WINDOW(window), GTK_ALIGN_CENTER);
+  
+  mobj->edit = 0;
+  g_print ("%s\n", mobj->message);
 
-  GtkWidget *view = (GtkWidget*)gtk_builder_get_object(builder, "treeviewRoute");
-  GtkTreeModel *model = create_and_fill_model ();
+  mobj->treeview = (GtkWidget*) gtk_builder_get_object (builder, "treeView");
+  mobj->entRoute = (GtkWidget*) gtk_builder_get_object (builder, "entRoute");
+  mobj->cmbType = (GtkWidget*) gtk_builder_get_object (builder, "cmbType");
+  mobj->cmbFrom = (GtkWidget*) gtk_builder_get_object (builder, "cmbFrom");
+  mobj->cmbDest = (GtkWidget*) gtk_builder_get_object (builder, "cmbDest");
+  mobj->btnNew = (GtkWidget*) gtk_builder_get_object (builder, "btnNew");
+  mobj->btnSave = (GtkWidget*) gtk_builder_get_object (builder, "btnSave");
+  mobj->btnExit = (GtkWidget*) gtk_builder_get_object (builder, "btnExit");
+  mobj->btnDelete = (GtkWidget*) gtk_builder_get_object (builder, "btnDelete");
+  mobj->treeListStore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
+  mobj->typeListStore = (GtkListStore*) gtk_builder_get_object (builder, "routeDirection");
+  mobj->fromListStore = (GtkListStore*) gtk_builder_get_object (builder, "stationLists");
+  mobj->destListStore = (GtkListStore*) gtk_builder_get_object (builder, "stationLists");
+  
+  insertDataToTreeListStore(mobj); // Insert data to GtkListStore at the first run.
 
-  gtk_tree_view_set_model (GTK_TREE_VIEW (view), model);
+  g_signal_connect (mobj->btnNew, "clicked", G_CALLBACK (btnNew_click), mobj); // don't use & before mobj.
+  g_signal_connect (mobj->entStaCode, "focus-in-event", G_CALLBACK (entStaCode_focus), mobj);
+  g_signal_connect (mobj->entStaName, "focus-in-event", G_CALLBACK (entStaName_focus), mobj);
+  g_signal_connect (mobj->entStaCode, "key-release-event", G_CALLBACK (entStaCode_release), mobj);
+  g_signal_connect (mobj->entStaName, "key-release-event", G_CALLBACK (entStaName_release), mobj);
+  g_signal_connect (mobj->btnSave, "clicked", G_CALLBACK (btnSave_click), mobj);
+  g_signal_connect (mobj->btnDelete, "clicked", G_CALLBACK (btnDelete_click), mobj);
+  g_signal_connect (mobj->treeview, "cursor-changed", G_CALLBACK (row_change), mobj);
+  g_signal_connect (mobj->btnExit, "clicked", G_CALLBACK (btnExit_click), mobj);
+  g_signal_connect (window, "destroy", G_CALLBACK (btnExit_click), mobj);
+  g_signal_connect (mobj->btnDemo, "clicked", G_CALLBACK (btnDemo_click), mobj);
+  
+  gtk_widget_set_sensitive (mobj->entStaCode, FALSE);
+  gtk_widget_set_sensitive (mobj->entStaName, FALSE);
+  gtk_widget_set_sensitive (mobj->btnSave, FALSE);
+  gtk_widget_set_sensitive (mobj->btnDelete, FALSE);
 
-  GtkWidget *cmbFrom = (GtkWidget*) gtk_builder_get_object (builder, "cmbFrom");
-  model = create_model_from();
-  gtk_combo_box_set_model (GTK_COMBO_BOX (cmbFrom), model);
-
-  gtk_widget_show_all(GTK_WIDGET(window));
+  gtk_widget_grab_focus (mobj->btnNew);
+  gtk_widget_show_all (window);
+  
+  g_object_unref (G_OBJECT(builder));
 
   gtk_main();
-
-  return 0;
 }
+
+int main (int argc, char *argv[]){
+	GtkApplication *app;
+	int status = 0;
+  
+  //Initialize struct before use it.
+  RouteWidgets mobj;
+  mobj.message = "โปรแกรมข้อมูลเส้นทาง";
+    
+	app = gtk_application_new("pimpanya.com", G_APPLICATION_FLAGS_NONE);
+	g_signal_connect (app, "activate", G_CALLBACK (activate), &mobj); // do use & before mobj
+	status = g_application_run(G_APPLICATION (app), argc, argv);
+	g_object_unref (app);
+
+  return status;
+}
+
+//int main(int argc, char *argv[]){
+
+  //gtk_init(&argc, &argv);
+
+  //builder = gtk_builder_new_from_file("glade/tms_route.glade");
+  //gtk_builder_connect_signals(builder, NULL);
+
+  //window = (GtkWidget*)gtk_builder_get_object(builder, "window");
+  //gtk_window_set_position (GTK_WINDOW(window), GTK_WINDOW_TOPLEVEL);
+  //gtk_window_set_gravity (GTK_WINDOW(window), GDK_GRAVITY_CENTER);
+
+  //GtkWidget *view = (GtkWidget*)gtk_builder_get_object(builder, "treeviewRoute");
+  //GtkTreeModel *model = create_and_fill_model ();
+
+  //gtk_tree_view_set_model (GTK_TREE_VIEW (view), model);
+
+  //GtkWidget *cmbFrom = (GtkWidget*) gtk_builder_get_object (builder, "cmbFrom");
+  //model = create_model_from();
+  //gtk_combo_box_set_model (GTK_COMBO_BOX (cmbFrom), model);
+
+  //gtk_widget_show_all(GTK_WIDGET(window));
+
+  //gtk_main();
+
+  //return 0;
+//}
