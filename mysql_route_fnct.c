@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mariadb/mysql.h>
-#include "mysql_station_fnct.h"
+#include "mysql_route_fnct.h"
 #include "functions.h"
 
 #define CONFIG_FILE ".mysql_options"
@@ -50,6 +50,7 @@ int delete(MYSQL *conn, const char *sql) {
   return query(conn, sql);
 }
 
+/*
 Station getStationNameByCode (Station station){
   MYSQL *conn = connect_to_db ();
   MYSQL_RES *result;
@@ -118,26 +119,6 @@ gboolean insertStation (Station station) {
   return result;
 }
 
-//gboolean deleteStation (const gchar *staCode) {
-  //MYSQL *conn = connect_to_db();
-  //gboolean result = FALSE;
-  //gchar *sql = g_strdup_printf ("DELETE FROM station WHERE sta_code = '%s'", staCode);
-
-  //if (query (conn, sql) == 0){
-    //result = TRUE;
-  //}else {
-    //fprintf(stderr, "deleteStation::Error: failed to execute query\n");
-    //g_free (sql);
-    //close_db_connection(conn);
-    //exit (1);
-  //}
-
-  //g_free (sql);
-  //mysql_close (conn);
-
-  //return result;
-//}
-
 gboolean deleteStation(const gchar *staCode) {
   MYSQL *conn = connect_to_db();
   gboolean result = FALSE;
@@ -149,8 +130,6 @@ gboolean deleteStation(const gchar *staCode) {
     gchar *warning_msg = g_strdup_printf("Cannot delete station '%s' because it is used in the route table.", staCode);
     display_warning_message(warning_msg);  // display the warning message
     g_free(warning_msg);
-    //g_free(sql);
-    //close_db_connection(conn);
   }
 
   g_free(sql);
@@ -158,5 +137,36 @@ gboolean deleteStation(const gchar *staCode) {
 
   return result;
 }
+*/
 
+GList* getAllRoutes(MYSQL *conn) {
+    gchar *query = "SELECT rou_code, rou_direction, sta_from, sta_to FROM route ORDER BY rou_code, rou_direction";
+
+    if (mysql_query(conn, query) != 0) {
+        g_error("mysql_query() failed: %s", mysql_error(conn));
+        return NULL;
+    }
+
+    MYSQL_RES *res = mysql_use_result(conn);
+    if (res == NULL) {
+        g_error("mysql_use_result() failed: %s", mysql_error(conn));
+        return NULL;
+    }
+
+    GList *routeList = NULL;
+
+    while (MYSQL_ROW row = mysql_fetch_row(res)) {
+        Route *route = g_new(Route, 1);
+        route->rouCode = g_strdup(row[0]);
+        route->rouDirection = g_strdup(row[1]);
+        route->staFrom = g_strdup(row[2]);
+        route->staTo = g_strdup(row[3]);
+
+        routeList = g_list_append(routeList, route);
+     }
+
+  mysql_free_result(res);
+  
+  return routeList;
+}
 
