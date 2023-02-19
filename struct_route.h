@@ -14,6 +14,16 @@
 // Station is struct for store staCode and staName to passing
 // to functin in mysql_fnct.c
 
+enum {
+  COL_ROUTE = 0,
+  COL_FROM,
+  COL_TO,
+  COL_FROMCODE,
+  COL_DESTCODE,
+  COL_TYPE,
+  NUM_COLS
+};
+
 typedef struct {
   gchar *rouCode;
   gchar *rouDirection;
@@ -22,6 +32,8 @@ typedef struct {
 } Route;
 
 typedef struct {
+  GtkBuilder *builder;
+  GtkWidget *window;
   GtkWidget *treeview ;
   GtkTreeModel *model;
   GtkListStore *treeListStore; 
@@ -48,6 +60,7 @@ typedef struct {
   GtkTreeModel *destModel;
   GtkListStore *destListStore;
   GtkTreeIter *destIter;
+  gchar *message;
 } RouteWidgets;
 
 #endif // STRUCT_ROUTE_H

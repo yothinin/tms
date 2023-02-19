@@ -10,9 +10,9 @@
 #include <gtk/gtk.h>
 #endif //GTK_GTK_H
 #include "functions.h"
-#include "struct_station.h"
-#include "widget_station_fnct.h"
-#include "mysql_station_fnct.h"
+#include "struct_route.h"
+//#include "widget_route_fnct.h"
+//#include "mysql_route_fnct.h"
 
 /*
  * to declare function name use these form:
@@ -24,6 +24,16 @@
  * click is the behavior for the button
  */
 
+void disableWidget(RouteWidgets mobj){
+  gtk_widget_set_sensitive (mobj->cmbType, FALSE);
+  gtk_widget_set_sensitive (mobj->entRoute, FALSE);
+}
+
+void enableWidget(RouteWidgets mobj){
+  gtk_widget_set_sensitive (mobj->entRoute, TRUE);
+}
+
+/*
 void btnDemo_click (GtkWidget *widget, gpointer userdata){
   MyObjects *mobj = (MyObjects*) userdata;
   g_print ("demo clicked\n");
@@ -283,3 +293,5 @@ void insertDataToListStore(MyObjects *mobj) {
   mysql_free_result(result);
   close_db_connection(conn);
 }
+
+*/

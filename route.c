@@ -7,39 +7,64 @@
 #include <glib/gprintf.h>
 #include "struct_route.h"
 
-GtkBuilder* builder;
-GtkWidget *window;
-GtkWidget *treeview;
-GtkTreeSelection *selection;
+gboolean on_main_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointer userdata) {
+  RouteWidgets *mobj = (RouteWidgets*) userdata;
+  GtkWidget *dialog;
+  gint result;
 
-enum {
-  COL_ROUTE = 0,
-  COL_FROM,
-  COL_TO,
-  COL_FROMCODE,
-  COL_DESTCODE,
-  COL_TYPE,
-  NUM_COLS
-};
+  dialog = gtk_message_dialog_new_with_markup(GTK_WINDOW(mobj->window),
+                                              GTK_DIALOG_MODAL,
+                                              GTK_MESSAGE_QUESTION,
+                                              GTK_BUTTONS_NONE,
+                                              "<span size='large' weight='bold'>Are you sure you want to exit?</span>");
 
-void disableWidget(){
-  GtkWidget *entRoute = (GtkWidget*) gtk_builder_get_object (builder, "entRoute");
-  GtkWidget *cmbType = (GtkWidget*) gtk_builder_get_object (builder, "cmbType");
-  gtk_widget_set_sensitive (cmbType, FALSE);
-  gtk_widget_set_sensitive (entRoute, FALSE);
+  gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                         "Yes",
+                         GTK_RESPONSE_YES,
+                         "No",
+                         GTK_RESPONSE_NO,
+                         NULL);
+
+  result = gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
+
+  if (result == GTK_RESPONSE_YES) {
+    g_print("Main window close button clicked\nExit: %s", mobj->message);
+    gtk_main_quit();
+    return FALSE;
+  } else {
+    return TRUE;
+  }
 }
 
-void enableWidget(){
-  GtkWidget *entRoute = (GtkWidget*) gtk_builder_get_object (builder, "entRoute");
-  gtk_widget_set_sensitive (entRoute, TRUE);
+void btnExit_click(GtkWidget *widget, gpointer userdata) {
+  RouteWidgets *mobj = (RouteWidgets*) userdata;
+  GtkWidget *dialog;
+  gint result;
+
+  dialog = gtk_message_dialog_new(GTK_WINDOW(mobj->window),
+                                  GTK_DIALOG_MODAL,
+                                  GTK_MESSAGE_QUESTION,
+                                  GTK_BUTTONS_YES_NO,
+                                  "Are you sure you want to exit?");
+
+  result = gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
+
+  if (result == GTK_RESPONSE_YES) {
+    g_print("btnExit.Clicked\nExit: %s", mobj->message);
+    gtk_main_quit();
+  }
+  // If the user clicked "No" or closed the dialog box, do nothing and return to the program.
 }
 
+/*
 static GtkTreeModel *
 create_and_fill_model (void) {
 
   GtkListStore *store = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
 
-  /* Append a row and file in some data */
+  //Append a row and file in some data
   GtkTreeIter iter;
   gtk_list_store_append (store, &iter);
   gtk_list_store_set (store, &iter,
@@ -139,11 +164,6 @@ create_model_from (void) {
   return (GTK_TREE_MODEL(store));
 }
 
-G_MODULE_EXPORT
-void btnExit_clicked_cb (GtkWidget *widget, gpointer userdata){
-  g_print("btnExit::Cliced\n");
-  gtk_main_quit();
-}
 
 G_MODULE_EXPORT
 void btnSave_clicked_cb (GtkWidget *widget, gpointer userdata){
@@ -273,37 +293,36 @@ void destChanged (GtkWidget *widget, gpointer userdata){
   g_free (stationCode);
   g_free (stationFrom);
 }
+*/
 
 static void activate(GtkApplication* app, gpointer userdata){
-  GtkBuilder *builder;
-  GtkWidget *window;
+  RouteWidgets *mobj = (RouteWidgets*) userdata; // pointer to struct
 
-  MyObjects *mobj = (MyObjects*) userdata; // pointer to struct
-
-  builder = gtk_builder_new_from_file("glade/tms_route.glade");
+  mobj->builder = gtk_builder_new_from_file("glade/tms_route.glade");
   
-  window = (GtkWidget*)gtk_builder_get_object(builder, "window");
-  gtk_window_set_position (GTK_WINDOW(window), GTK_ALIGN_CENTER);
+  mobj->window = (GtkWidget*)gtk_builder_get_object(mobj->builder, "window");
+  gtk_window_set_position (GTK_WINDOW(mobj->window), GTK_ALIGN_CENTER);
   
   mobj->edit = 0;
   g_print ("%s\n", mobj->message);
 
-  mobj->treeview = (GtkWidget*) gtk_builder_get_object (builder, "treeView");
-  mobj->entRoute = (GtkWidget*) gtk_builder_get_object (builder, "entRoute");
-  mobj->cmbType = (GtkWidget*) gtk_builder_get_object (builder, "cmbType");
-  mobj->cmbFrom = (GtkWidget*) gtk_builder_get_object (builder, "cmbFrom");
-  mobj->cmbDest = (GtkWidget*) gtk_builder_get_object (builder, "cmbDest");
-  mobj->btnNew = (GtkWidget*) gtk_builder_get_object (builder, "btnNew");
-  mobj->btnSave = (GtkWidget*) gtk_builder_get_object (builder, "btnSave");
-  mobj->btnExit = (GtkWidget*) gtk_builder_get_object (builder, "btnExit");
-  mobj->btnDelete = (GtkWidget*) gtk_builder_get_object (builder, "btnDelete");
-  mobj->treeListStore = (GtkListStore*) gtk_builder_get_object (builder, "mainStore");
-  mobj->typeListStore = (GtkListStore*) gtk_builder_get_object (builder, "routeDirection");
-  mobj->fromListStore = (GtkListStore*) gtk_builder_get_object (builder, "stationLists");
-  mobj->destListStore = (GtkListStore*) gtk_builder_get_object (builder, "stationLists");
+  mobj->treeview = (GtkWidget*) gtk_builder_get_object (mobj->builder, "treeView");
+  mobj->entRoute = (GtkWidget*) gtk_builder_get_object (mobj->builder, "entRoute");
+  mobj->cmbType = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbType");
+  mobj->cmbFrom = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbFrom");
+  mobj->cmbDest = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbDest");
+  mobj->btnNew = (GtkWidget*) gtk_builder_get_object (mobj->builder, "btnNew");
+  mobj->btnSave = (GtkWidget*) gtk_builder_get_object (mobj->builder, "btnSave");
+  mobj->btnExit = (GtkWidget*) gtk_builder_get_object (mobj->builder, "btnExit");
+  mobj->btnDelete = (GtkWidget*) gtk_builder_get_object (mobj->builder, "btnDelete");
+  mobj->treeListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "mainStore");
+  mobj->typeListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "routeDirection");
+  mobj->fromListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "stationLists");
+  mobj->destListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "stationLists");
   
-  insertDataToTreeListStore(mobj); // Insert data to GtkListStore at the first run.
+  //insertDataToTreeListStore(mobj); // Insert data to GtkListStore at the first run.
 
+  /*
   g_signal_connect (mobj->btnNew, "clicked", G_CALLBACK (btnNew_click), mobj); // don't use & before mobj.
   g_signal_connect (mobj->entStaCode, "focus-in-event", G_CALLBACK (entStaCode_focus), mobj);
   g_signal_connect (mobj->entStaName, "focus-in-event", G_CALLBACK (entStaName_focus), mobj);
@@ -312,19 +331,23 @@ static void activate(GtkApplication* app, gpointer userdata){
   g_signal_connect (mobj->btnSave, "clicked", G_CALLBACK (btnSave_click), mobj);
   g_signal_connect (mobj->btnDelete, "clicked", G_CALLBACK (btnDelete_click), mobj);
   g_signal_connect (mobj->treeview, "cursor-changed", G_CALLBACK (row_change), mobj);
-  g_signal_connect (mobj->btnExit, "clicked", G_CALLBACK (btnExit_click), mobj);
-  g_signal_connect (window, "destroy", G_CALLBACK (btnExit_click), mobj);
   g_signal_connect (mobj->btnDemo, "clicked", G_CALLBACK (btnDemo_click), mobj);
-  
+  */
+  g_signal_connect (mobj->btnExit, "clicked", G_CALLBACK (btnExit_click), mobj);
+  //g_signal_connect (mobj->window, "destroy", G_CALLBACK (btnExit_click), mobj);
+  g_signal_connect(mobj->window, "delete-event", G_CALLBACK(on_main_window_delete_event), mobj);
+
+  /*
   gtk_widget_set_sensitive (mobj->entStaCode, FALSE);
   gtk_widget_set_sensitive (mobj->entStaName, FALSE);
   gtk_widget_set_sensitive (mobj->btnSave, FALSE);
   gtk_widget_set_sensitive (mobj->btnDelete, FALSE);
-
-  gtk_widget_grab_focus (mobj->btnNew);
-  gtk_widget_show_all (window);
+  */
   
-  g_object_unref (G_OBJECT(builder));
+  gtk_widget_grab_focus (mobj->btnNew);
+  gtk_widget_show_all (mobj->window);
+  
+  g_object_unref (G_OBJECT(mobj->builder));
 
   gtk_main();
 }
