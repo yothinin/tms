@@ -10,9 +10,9 @@
 #include <gtk/gtk.h>
 #endif //GTK_GTK_H
 #include "functions.h"
-#include "struct_route.h"
-#include "mysql_route_fnct.h"
-#include "widget_route_fnct.h"
+#include "route_struct.h"
+#include "route_mysql_fnct.h"
+#include "route_widget_fnct.h"
 
 /*
  * to declare function name use these form:

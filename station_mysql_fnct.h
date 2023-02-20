@@ -1,8 +1,8 @@
-#ifndef MYSQL_STATION_FNCT_H
-#define MYSQL_STATION_FNCT_H
+#ifndef STATION_MYSQL_FNCT_H
+#define STATION_MYSQL_FNCT_H
 #include <glib.h>
 #include <mariadb/mysql.h>
-#include "struct_station.h"
+#include "station_struct.h"
 
 MYSQL *connect_to_db();
 void close_db_connection(MYSQL *conn);

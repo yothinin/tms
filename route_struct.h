@@ -1,12 +1,12 @@
 /*
- * station_struct.h
+ * route_struct.h
  * purpose to store a struct for the module
  * name format: [module]_struct.h
  */
 #include <gtk/gtk.h>
  
-#ifndef STRUCT_ROUTE_H
-#define STRUCT_ROUTE_H
+#ifndef ROUTE_STRUCT_H
+#define ROUTE_STRUCT_H
 
 // MyObjects is the struct for keep widgets to send to another function
 // store value in function name: activate
@@ -66,4 +66,4 @@ typedef struct {
   
 } RouteWidgets;
 
-#endif // STRUCT_ROUTE_H
+#endif // ROUTE_STRUCT_H

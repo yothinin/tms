@@ -4,8 +4,8 @@
  
 #ifndef WIDGET_ROUTE_FNCT_H
 #define WIDGET_ROUTE_FNCT_H
-#include "struct_route.h"
-#include "mysql_route_fnct.h"
+#include "route_struct.h"
+#include "route_mysql_fnct.h"
 
 void disableWidget(RouteWidgets mobj);
 void enableWidget(RouteWidgets mobj);

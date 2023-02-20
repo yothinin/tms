@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mariadb/mysql.h>
-#include "mysql_station_fnct.h"
+#include "station_mysql_fnct.h"
 #include "functions.h"
 
 #define CONFIG_FILE ".mysql_options"

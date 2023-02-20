@@ -1,8 +1,8 @@
 CC=gcc
 CFLAGS=-g -Wall
 LIBS=`pkg-config --libs --cflags gtk+-3.0` -lmariadbclient -I/usr/include/glib-2.0 -lm -lX11 -lxkbfile -rdynamic
-STATION_SOURCES=station.c functions.c mysql_station_fnct.c widget_station_fnct.c
-ROUTE_SOURCES=route.c functions.c mysql_route_fnct.c widget_route_fnct.c
+STATION_SOURCES=station.c functions.c station_mysql_fnct.c station_widget_fnct.c
+ROUTE_SOURCES=route.c functions.c route_mysql_fnct.c route_widget_fnct.c
 STATION_OBJECTS=$(STATION_SOURCES:.c=.o)
 ROUTE_OBJECTS=$(ROUTE_SOURCES:.c=.o)
 STATION_EXECUTABLE=station

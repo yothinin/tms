@@ -2,9 +2,9 @@
  * header for station_widget_fnct.c
  */
  
-#ifndef WIDGET_STATION_FNCT_H
-#define WIDGET_STATION_FNCT_H
-#include "struct_station.h"
+#ifndef STATION_WIDGET_FNCT_H
+#define STATION_WIDGET_FNCT_H
+#include "station_struct.h"
 
 gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata);
 gboolean entStaName_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata);
@@ -20,4 +20,4 @@ void update_tree_view(MyObjects *mobj, Station station, gboolean result);
 void update_list_store(MyObjects *mobj, Station station, gboolean result);
 void insertDataToListStore(MyObjects *mobj);
 
-#endif // WIDGET_STATION_FNCT_H
+#endif // STATION_WIDGET_FNCT_H

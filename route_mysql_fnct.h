@@ -1,8 +1,8 @@
-#ifndef MYSQL_ROUTE_FNCT_H
-#define MYSQL_ROUTE_FNCT_H
+#ifndef ROUTE_MYSQL_FNCT_H
+#define ROUTE_MYSQL_FNCT_H
 #include <glib.h>
 #include <mariadb/mysql.h>
-#include "struct_route.h"
+#include "route_struct.h"
 
 MYSQL *connect_to_db();
 void close_db_connection(MYSQL *conn);

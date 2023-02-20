@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mariadb/mysql.h>
-#include "mysql_route_fnct.h"
+#include "route_mysql_fnct.h"
 #include "functions.h"
 
 #define CONFIG_FILE ".mysql_options"
@@ -172,6 +172,3 @@ gboolean deleteStation(const gchar *staCode) {
   return result;
 }
 */
-
-
-

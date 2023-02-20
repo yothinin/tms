@@ -5,8 +5,8 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <glib/gprintf.h>
-#include "struct_route.h"
-#include "widget_route_fnct.h"
+#include "route_struct.h"
+#include "route_widget_fnct.h"
 
 gboolean on_main_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointer userdata) {
   RouteWidgets *mobj = (RouteWidgets*) userdata;

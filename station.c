@@ -14,9 +14,9 @@
 #endif //GTK_GTK_H
 
 #include "functions.h"
-#include "mysql_station_fnct.h"
-#include "widget_station_fnct.h"
-#include "struct_station.h"
+#include "station_mysql_fnct.h"
+#include "station_widget_fnct.h"
+#include "station_struct.h"
 
 void btnExit_click (GtkWidget *widget, gpointer userdata){
   MyObjects *mobj = (MyObjects*) userdata;
