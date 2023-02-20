@@ -50,6 +50,40 @@ int delete(MYSQL *conn, const char *sql) {
   return query(conn, sql);
 }
 
+// This functin add data from mysql to GList and return to caller
+// Call from insertDataToTreeListStore() in widget_route_fnct.c
+GList *getAllRoutes () {
+  MYSQL *conn = connect_to_db();
+  gchar *query = "SELECT r.rou_code, s1.sta_name, s2.sta_name, IF (rou_direction='0', 'O', 'I') as rou_direction, r.sta_from, r.sta_to FROM route r LEFT JOIN station s1 ON r.sta_from = s1.sta_code LEFT JOIN station s2 ON r.sta_to = s2.sta_code ORDER BY r.rou_code, r.rou_direction;";
+
+  if (mysql_query(conn, query) != 0) {
+    g_error("mysql_query() failed: %s", mysql_error(conn));
+    return NULL;
+  }
+
+  MYSQL_RES *res = mysql_use_result(conn);
+  if (res == NULL) {
+    g_error("mysql_use_result() failed: %s", mysql_error(conn));
+    return NULL;
+  }
+
+  GList *routeList = NULL;
+  MYSQL_ROW row;
+  while ((row = mysql_fetch_row(res))) {
+    Route *route = g_new(Route, 1);
+    route->rouCode = g_strdup(row[0]);
+    route->rouName = g_strdup(row[1]);
+    route->rouDirection = g_strdup(row[2]);
+    route->staFrom = g_strdup(row[3]);
+    route->staTo = g_strdup(row[4]);
+
+    routeList = g_list_append(routeList, route);
+  }
+  mysql_free_result(res);
+  
+  return routeList;
+}
+
 /*
 Station getStationNameByCode (Station station){
   MYSQL *conn = connect_to_db ();
@@ -139,35 +173,5 @@ gboolean deleteStation(const gchar *staCode) {
 }
 */
 
-/*
-GList* getAllRoutes(MYSQL *conn) {
-    gchar *query = "SELECT rou_code, rou_direction, sta_from, sta_to FROM route ORDER BY rou_code, rou_direction";
 
-    if (mysql_query(conn, query) != 0) {
-        g_error("mysql_query() failed: %s", mysql_error(conn));
-        return NULL;
-    }
 
-    MYSQL_RES *res = mysql_use_result(conn);
-    if (res == NULL) {
-        g_error("mysql_use_result() failed: %s", mysql_error(conn));
-        return NULL;
-    }
-
-    GList *routeList = NULL;
-
-    while (MYSQL_ROW row = mysql_fetch_row(res)) {
-        Route *route = g_new(Route, 1);
-        route->rouCode = g_strdup(row[0]);
-        route->rouDirection = g_strdup(row[1]);
-        route->staFrom = g_strdup(row[2]);
-        route->staTo = g_strdup(row[3]);
-
-        routeList = g_list_append(routeList, route);
-     }
-
-  mysql_free_result(res);
-  
-  return routeList;
-}
-*/

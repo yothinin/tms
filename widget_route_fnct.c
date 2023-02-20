@@ -11,8 +11,8 @@
 #endif //GTK_GTK_H
 #include "functions.h"
 #include "struct_route.h"
+#include "mysql_route_fnct.h"
 #include "widget_route_fnct.h"
-//#include "mysql_route_fnct.h"
 
 /*
  * to declare function name use these form:
@@ -66,25 +66,10 @@ gboolean entRoute_release (GtkWidget *widget, GdkEventKey *event, gpointer user_
   if (strcmp(gdk_keyval_name(event->keyval), "Return") == 0  ||
       strcmp(gdk_keyval_name(event->keyval), "KP_Enter") == 0){
 
-    const gchar *const_rouCode = gtk_entry_get_text(GTK_ENTRY(mobj->entRoute));
-    gchar *rouCode = g_strdup(const_rouCode);
-    Route route = {rouCode, NULL};
-
-    //station = getStationNameByCode (station);
-    //gtk_entry_set_text (GTK_ENTRY (mobj->entStaName), station.staName == NULL?"":station.staName);
-
-    //if (station.staName != NULL){
-      //gtk_widget_set_sensitive (mobj->entStaCode, FALSE);
-      //mobj->edit=1; // UPDATE
-      //gtk_button_set_label (GTK_BUTTON (mobj->btnSave), "แก้ไข");
-      //gtk_widget_set_sensitive (mobj->btnSave, TRUE);
-      //gtk_widget_set_sensitive (mobj->btnDelete, TRUE);
-    //} // CHECK LATER FOR NEED TO CREATE ELSE BLOCK FOR mobj->edit = 0;
+    //const gchar *const_rouCode = gtk_entry_get_text(GTK_ENTRY(mobj->entRoute));
+    //gchar *rouCode = g_strdup(const_rouCode);
     
-    gtk_widget_grab_focus (mobj->cmbType);
-    
-    g_free (rouCode);
-    //g_free (route.staName);
+
 
     return TRUE;
   }else {
@@ -97,6 +82,22 @@ gboolean entRoute_release (GtkWidget *widget, GdkEventKey *event, gpointer user_
   return FALSE;
 }
 
+
+void insertDataToTreeListStore(RouteWidgets *mobj) {
+  // This function insert data from GList to GtkListStore
+  GList *routeList = getAllRoutes ();
+  for (GList *l = routeList; l != NULL; l = l->next) {
+    Route *route = (Route *)l->data;
+    g_print("rouCode: %s, routName: %s, rouDirection: %s, staFrom: %s, staTo: %s\n", route->rouCode, route->rouName, route->rouDirection, route->staFrom, route->staTo);
+    gtk_list_store_append (mobj->treeListStore, &mobj->treeIter);
+    gtk_list_store_set (mobj->treeListStore, &mobj->treeIter, 0, route->rouCode,
+                                                              1, route->rouName,
+                                                              2, route->rouDirection,
+                                                              3, route->staFrom,
+                                                              4, route->staTo, -1);
+  }
+  g_list_free_full(routeList, freeRoute);
+}
 
 /*
 void btnDemo_click (GtkWidget *widget, gpointer userdata){
@@ -260,41 +261,6 @@ void update_list_store(MyObjects *mobj, Station station, gboolean result) {
       gtk_list_store_set_value(mobj->liststore, &mobj->iter, 1, &value); // Update value
     }
   }
-}
-
-void insertDataToListStore(MyObjects *mobj) {
-  MYSQL *conn;
-  conn = connect_to_db();
-  if (conn == NULL) {
-    fprintf(stderr, "Error: failed to connect to database\n");
-    exit (1);
-  }
-  
-  const char *sql = "SELECT sta_code, sta_name FROM station ORDER BY sta_code";
-  if (query(conn, sql)) {
-    fprintf(stderr, "Error: failed to execute query\n");
-    close_db_connection(conn);
-    exit (1);
-  }
-  
-  MYSQL_RES *result = mysql_store_result(conn);
-  if (result == NULL) {
-    fprintf(stderr, "Error: failed to get result\n");
-    close_db_connection(conn);
-    exit (1);
-  }
-  
-  int num_fields = mysql_num_fields(result);
-  MYSQL_ROW row;
-  while ((row = mysql_fetch_row(result))) {
-    gtk_list_store_append (mobj->liststore, &mobj->iter);
-    for (int i = 0; i < num_fields; i++) {
-      gtk_list_store_set (mobj->liststore, &mobj->iter, i, row[i], -1);
-    }
-  }
-  
-  mysql_free_result(result);
-  close_db_connection(conn);
 }
 
 */

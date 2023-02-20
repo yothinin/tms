@@ -10,10 +10,9 @@ int query(MYSQL *conn, const char *sql);
 int insert(MYSQL *conn, const char *sql);
 int update(MYSQL *conn, const char *sql);
 int delete(MYSQL *conn, const char *sql);
-//Station getRouteByCode (Route route);
 gboolean updateRoute (Route route);
 gboolean insertRoute (Route route);
 gboolean deleteRoute (Route route);
-GList* mysql_get_all_routes(MYSQL *conn);
+GList *getAllRoutes ();
 
 #endif

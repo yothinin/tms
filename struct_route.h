@@ -26,6 +26,7 @@ enum {
 
 typedef struct {
   gchar *rouCode;
+  gchar *rouName;
   gchar *rouDirection;
   gchar *staFrom;
   gchar *staTo;

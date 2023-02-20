@@ -11,6 +11,7 @@
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBrules.h>
 #include "struct_station.h"
+#include "struct_route.h"
 
 void change_keyb (gchar *new_group){
   Display *dpy = XOpenDisplay(NULL);
@@ -74,3 +75,12 @@ void display_warning_message(const gchar *message) {
   gtk_widget_destroy(dialog);
 }
 
+void freeRoute(gpointer data) {
+    Route *route = (Route *)data;
+    g_free(route->rouCode);
+    g_free(route->rouName);
+    g_free(route->rouDirection);
+    g_free(route->staFrom);
+    g_free(route->staTo);
+    g_free(route);
+}

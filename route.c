@@ -30,7 +30,7 @@ gboolean on_main_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointe
   gtk_widget_destroy(dialog);
 
   if (result == GTK_RESPONSE_YES) {
-    g_print("Main window close button clicked\nExit: %s", mobj->message);
+    g_print("Main window close button clicked\nExit: %s\n", mobj->message);
     gtk_main_quit();
     return FALSE;
   } else {
@@ -53,7 +53,7 @@ void btnExit_click(GtkWidget *widget, gpointer userdata) {
   gtk_widget_destroy(dialog);
 
   if (result == GTK_RESPONSE_YES) {
-    g_print("btnExit.Clicked\nExit: %s", mobj->message);
+    g_print("btnExit.Clicked\nExit: %s\n", mobj->message);
     gtk_main_quit();
   }
   // If the user clicked "No" or closed the dialog box, do nothing and return to the program.
@@ -307,7 +307,7 @@ static void activate(GtkApplication* app, gpointer userdata){
   mobj->edit = 0;
   g_print ("%s\n", mobj->message);
 
-  mobj->treeview = (GtkWidget*) gtk_builder_get_object (mobj->builder, "treeView");
+  mobj->treeview = (GtkWidget*) gtk_builder_get_object (mobj->builder, "treeViewRoute");
   mobj->entRoute = (GtkWidget*) gtk_builder_get_object (mobj->builder, "entRoute");
   mobj->cmbType = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbType");
   mobj->cmbFrom = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbFrom");
@@ -316,12 +316,12 @@ static void activate(GtkApplication* app, gpointer userdata){
   mobj->btnSave = (GtkWidget*) gtk_builder_get_object (mobj->builder, "btnSave");
   mobj->btnExit = (GtkWidget*) gtk_builder_get_object (mobj->builder, "btnExit");
   mobj->btnDelete = (GtkWidget*) gtk_builder_get_object (mobj->builder, "btnDelete");
-  mobj->treeListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "mainStore");
+  mobj->treeListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "liststore1");
   mobj->typeListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "routeDirection");
   mobj->fromListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "stationLists");
   mobj->destListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "stationLists");
   
-  //insertDataToTreeListStore(mobj); // Insert data to GtkListStore at the first run.
+  insertDataToTreeListStore (mobj);
 
   /*
   g_signal_connect (mobj->entStaName, "focus-in-event", G_CALLBACK (entStaName_focus), mobj);
