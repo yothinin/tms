@@ -6,6 +6,7 @@
 #include <glib/gstdio.h>
 #include <glib/gprintf.h>
 #include "struct_route.h"
+#include "widget_route_fnct.h"
 
 gboolean on_main_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointer userdata) {
   RouteWidgets *mobj = (RouteWidgets*) userdata;
@@ -323,16 +324,17 @@ static void activate(GtkApplication* app, gpointer userdata){
   //insertDataToTreeListStore(mobj); // Insert data to GtkListStore at the first run.
 
   /*
-  g_signal_connect (mobj->btnNew, "clicked", G_CALLBACK (btnNew_click), mobj); // don't use & before mobj.
-  g_signal_connect (mobj->entStaCode, "focus-in-event", G_CALLBACK (entStaCode_focus), mobj);
   g_signal_connect (mobj->entStaName, "focus-in-event", G_CALLBACK (entStaName_focus), mobj);
-  g_signal_connect (mobj->entStaCode, "key-release-event", G_CALLBACK (entStaCode_release), mobj);
   g_signal_connect (mobj->entStaName, "key-release-event", G_CALLBACK (entStaName_release), mobj);
   g_signal_connect (mobj->btnSave, "clicked", G_CALLBACK (btnSave_click), mobj);
   g_signal_connect (mobj->btnDelete, "clicked", G_CALLBACK (btnDelete_click), mobj);
   g_signal_connect (mobj->treeview, "cursor-changed", G_CALLBACK (row_change), mobj);
   g_signal_connect (mobj->btnDemo, "clicked", G_CALLBACK (btnDemo_click), mobj);
   */
+
+  g_signal_connect (mobj->entRoute, "focus-in-event", G_CALLBACK (entRoute_focus), mobj);
+  g_signal_connect (mobj->entRoute, "key-release-event", G_CALLBACK (entRoute_release), mobj);
+  g_signal_connect (mobj->btnNew, "clicked", G_CALLBACK (btnNew_click), mobj);
   g_signal_connect (mobj->btnExit, "clicked", G_CALLBACK (btnExit_click), mobj);
   //g_signal_connect (mobj->window, "destroy", G_CALLBACK (btnExit_click), mobj);
   g_signal_connect(mobj->window, "delete-event", G_CALLBACK(on_main_window_delete_event), mobj);

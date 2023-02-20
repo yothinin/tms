@@ -11,7 +11,7 @@
 #endif //GTK_GTK_H
 #include "functions.h"
 #include "struct_route.h"
-//#include "widget_route_fnct.h"
+#include "widget_route_fnct.h"
 //#include "mysql_route_fnct.h"
 
 /*
@@ -24,14 +24,79 @@
  * click is the behavior for the button
  */
 
-void disableWidget(RouteWidgets mobj){
+/*
+void disableWidget(RouteWidgets mobj, gpointer user_data){
+  RouteWidgets *mobj = (RouteWidgets*) user_data;
   gtk_widget_set_sensitive (mobj->cmbType, FALSE);
   gtk_widget_set_sensitive (mobj->entRoute, FALSE);
 }
 
-void enableWidget(RouteWidgets mobj){
+void enableWidget(RouteWidgets mobj, gpointer user_data){
   gtk_widget_set_sensitive (mobj->entRoute, TRUE);
 }
+*/
+
+void btnNew_click (GtkWidget *widget, gpointer user_data){
+  RouteWidgets *mobj = (RouteWidgets*) user_data;
+
+  //mobj->treeSelected = gtk_tree_view_get_selection (GTK_TREE_VIEW(mobj->treeview));
+  //gtk_tree_selection_unselect_all (GTK_TREE_SELECTION(mobj->treeSelected));
+
+  gtk_widget_set_sensitive (mobj->entRoute, TRUE);
+  gtk_widget_set_sensitive (mobj->cmbType, FALSE);
+  gtk_widget_set_sensitive (mobj->cmbFrom, FALSE);
+  gtk_widget_set_sensitive (mobj->cmbDest, FALSE);
+  gtk_widget_set_sensitive (mobj->btnNew, TRUE);
+  gtk_widget_set_sensitive (mobj->btnSave, FALSE);
+  gtk_widget_set_sensitive (mobj->btnExit, TRUE);
+  gtk_widget_set_sensitive (mobj->btnDelete, FALSE);  
+  mobj->edit = 0; // New, save
+  
+  gtk_widget_grab_focus (mobj->entRoute);
+}
+
+
+void entRoute_focus (GtkWidget *widget, gpointer user_data){
+  change_keyb ("us");
+}
+
+gboolean entRoute_release (GtkWidget *widget, GdkEventKey *event, gpointer user_data){
+  RouteWidgets *mobj = (RouteWidgets*) user_data;
+  const gchar *strRoute = gtk_entry_get_text (GTK_ENTRY(mobj->entRoute));
+  if (strcmp(gdk_keyval_name(event->keyval), "Return") == 0  ||
+      strcmp(gdk_keyval_name(event->keyval), "KP_Enter") == 0){
+
+    const gchar *const_rouCode = gtk_entry_get_text(GTK_ENTRY(mobj->entRoute));
+    gchar *rouCode = g_strdup(const_rouCode);
+    Route route = {rouCode, NULL};
+
+    //station = getStationNameByCode (station);
+    //gtk_entry_set_text (GTK_ENTRY (mobj->entStaName), station.staName == NULL?"":station.staName);
+
+    //if (station.staName != NULL){
+      //gtk_widget_set_sensitive (mobj->entStaCode, FALSE);
+      //mobj->edit=1; // UPDATE
+      //gtk_button_set_label (GTK_BUTTON (mobj->btnSave), "แก้ไข");
+      //gtk_widget_set_sensitive (mobj->btnSave, TRUE);
+      //gtk_widget_set_sensitive (mobj->btnDelete, TRUE);
+    //} // CHECK LATER FOR NEED TO CREATE ELSE BLOCK FOR mobj->edit = 0;
+    
+    gtk_widget_grab_focus (mobj->cmbType);
+    
+    g_free (rouCode);
+    //g_free (route.staName);
+
+    return TRUE;
+  }else {
+    if (strlen(strRoute) > 0)
+      gtk_widget_set_sensitive (mobj->cmbType, TRUE);
+    else
+      gtk_widget_set_sensitive (mobj->cmbType, FALSE);    
+  }
+
+  return FALSE;
+}
+
 
 /*
 void btnDemo_click (GtkWidget *widget, gpointer userdata){
@@ -46,51 +111,6 @@ void btnDemo_click (GtkWidget *widget, gpointer userdata){
     sprintf (name, "%05d", i);
     gtk_list_store_set (mobj->liststore, &mobj->iter, 0, code, 1, name, -1); // Insert value
   }
-}
-  
-void entStaCode_focus (GtkWidget *widget, gpointer userdata){
-  change_keyb ("us");
-}
-
-gboolean entStaCode_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata){
-  MyObjects *mobj = (MyObjects*) userdata;
-  const gchar *stacode = gtk_entry_get_text (GTK_ENTRY(mobj->entStaCode));
-  if (strcmp(gdk_keyval_name(event->keyval), "Return") == 0  ||
-      strcmp(gdk_keyval_name(event->keyval), "KP_Enter") == 0){
-
-    //const gchar *staCode = gtk_entry_get_text (GTK_ENTRY (mobj->entStaCode));
-    //GtkTreeIter *checkIter = get_iter(staCode, 0, 0, mobj); // ext_condition = 0, equal
-                                                           // use equal because search to find the code.
-    //MYSQL *conn = connect_to_db();
-    const gchar *const_staCode = gtk_entry_get_text(GTK_ENTRY(mobj->entStaCode));
-    gchar *staCode = g_strdup(const_staCode);
-    Station station = {staCode, NULL};
-
-    station = getStationNameByCode (station);
-    gtk_entry_set_text (GTK_ENTRY (mobj->entStaName), station.staName == NULL?"":station.staName);
-
-    if (station.staName != NULL){
-      gtk_widget_set_sensitive (mobj->entStaCode, FALSE);
-      mobj->edit=1; // UPDATE
-      gtk_button_set_label (GTK_BUTTON (mobj->btnSave), "แก้ไข");
-      gtk_widget_set_sensitive (mobj->btnSave, TRUE);
-      gtk_widget_set_sensitive (mobj->btnDelete, TRUE);
-    } // CHECK LATER FOR NEED TO CREATE ELSE BLOCK FOR mobj->edit = 0;
-    
-    gtk_widget_grab_focus (mobj->entStaName);
-    
-    g_free (staCode);
-    g_free (station.staName);
-
-    return TRUE;
-  }else {
-    if (strlen(stacode) > 0)
-      gtk_widget_set_sensitive (mobj->entStaName, TRUE);
-    else
-      gtk_widget_set_sensitive (mobj->entStaName, FALSE);    
-  }
-
-  return FALSE;
 }
 
 void entStaName_focus (GtkWidget *widget, gpointer userdata){
@@ -114,23 +134,6 @@ gboolean entStaName_release (GtkWidget *widget, GdkEventKey *event, gpointer use
   }
 
   return FALSE;
-}
-
-void btnNew_click (GtkWidget *widget, gpointer userdata){
-  MyObjects *mobj = (MyObjects*) userdata;
-
-  GtkTreeSelection *selected = gtk_tree_view_get_selection (GTK_TREE_VIEW(mobj->treeview));
-  gtk_tree_selection_unselect_all (GTK_TREE_SELECTION(selected));
-
-  gtk_widget_set_sensitive (mobj->entStaCode, TRUE);
-  gtk_widget_set_sensitive (mobj->entStaName, FALSE);
-  gtk_entry_set_text (GTK_ENTRY(mobj->entStaCode), "");
-  gtk_entry_set_text (GTK_ENTRY(mobj->entStaName), "");
-  gtk_button_set_label (GTK_BUTTON(mobj->btnSave), "บันทึก");
-  gtk_widget_set_sensitive (mobj->btnSave, FALSE);
-  gtk_widget_set_sensitive (mobj->btnDelete, FALSE);
-  gtk_widget_grab_focus (mobj->entStaCode);
-  mobj->edit = 0; // New, save
 }
 
 void btnDelete_click (GtkWidget *widget, gpointer userdata){

@@ -60,7 +60,9 @@ typedef struct {
   GtkTreeModel *destModel;
   GtkListStore *destListStore;
   GtkTreeIter *destIter;
+  
   gchar *message;
+  
 } RouteWidgets;
 
 #endif // STRUCT_ROUTE_H

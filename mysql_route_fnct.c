@@ -139,6 +139,7 @@ gboolean deleteStation(const gchar *staCode) {
 }
 */
 
+/*
 GList* getAllRoutes(MYSQL *conn) {
     gchar *query = "SELECT rou_code, rou_direction, sta_from, sta_to FROM route ORDER BY rou_code, rou_direction";
 
@@ -169,4 +170,4 @@ GList* getAllRoutes(MYSQL *conn) {
   
   return routeList;
 }
-
+*/
