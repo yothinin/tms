@@ -49,7 +49,7 @@
     </columns>
   </object>
   <object class="GtkWindow" id="window">
-    <property name="width-request">640</property>
+    <property name="width-request">720</property>
     <property name="height-request">480</property>
     <property name="can-focus">False</property>
     <property name="border-width">15</property>

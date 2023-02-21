@@ -59,56 +59,8 @@ void btnExit_click(GtkWidget *widget, gpointer userdata) {
   // If the user clicked "No" or closed the dialog box, do nothing and return to the program.
 }
 
+
 /*
-static GtkTreeModel *
-create_and_fill_model (void) {
-
-  GtkListStore *store = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststore1"));
-
-  //Append a row and file in some data
-  GtkTreeIter iter;
-  gtk_list_store_append (store, &iter);
-  gtk_list_store_set (store, &iter,
-                      COL_ROUTE, "18",
-                      COL_FROM, "กรุงเทพฯ",
-                      COL_TO, "เขียงใหม่",
-                      COL_FROMCODE, "10000",
-                      COL_DESTCODE, "50000",
-                      COL_TYPE, "O",
-                      -1);
-
-  gtk_list_store_append (store, &iter);
-  gtk_list_store_set (store, &iter,
-                      COL_ROUTE, "20",
-                      COL_FROM, "กรุงเทพฯ",
-                      COL_TO, "ขอนแก่น",
-                      COL_FROMCODE, "10000",
-                      COL_DESTCODE, "40000",
-                      COL_TYPE, "O",
-                      -1);
-                      
-  gtk_list_store_append (store, &iter);
-  gtk_list_store_set (store, &iter,
-                      COL_ROUTE, "31",
-                      COL_FROM, "กรุงเทพฯ",
-                      COL_TO, "สุรินทร์",
-                      COL_FROMCODE, "10000",
-                      COL_DESTCODE, "34000",
-                      COL_TYPE, "O",
-                      -1);
-
-  gtk_list_store_append (store, &iter);
-  gtk_list_store_set (store, &iter,
-                      0, "31",
-                      1, "สุรินทร์",
-                      2, "กรุงเทพฯ",
-                      3, "34000",
-                      4, "10000",
-                      5, "I",
-                      -1);
-
-  return GTK_TREE_MODEL (store);
-}
 
 G_MODULE_EXPORT
 void on_btnNew_clicked (GtkWidget *widget, gpointer userdata){
@@ -322,6 +274,7 @@ static void activate(GtkApplication* app, gpointer userdata){
   mobj->destListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "stationLists");
   
   insertDataToTreeListStore (mobj);
+  btnNew_click (NULL, mobj);
 
   /*
   g_signal_connect (mobj->entStaName, "focus-in-event", G_CALLBACK (entStaName_focus), mobj);

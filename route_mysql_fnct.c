@@ -84,8 +84,7 @@ GList *getAllRoutes () {
   return routeList;
 }
 
-/*
-Station getStationNameByCode (Station station){
+Route getStationNameByCode (Station station){
   MYSQL *conn = connect_to_db ();
   MYSQL_RES *result;
   MYSQL_ROW row;
@@ -111,6 +110,9 @@ Station getStationNameByCode (Station station){
 
   return station;
 }
+
+
+/*
 
 gboolean updateStationName (Station station){
   MYSQL *conn = connect_to_db();
