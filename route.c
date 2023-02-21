@@ -17,7 +17,7 @@ gboolean on_main_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointe
                                               GTK_DIALOG_MODAL,
                                               GTK_MESSAGE_QUESTION,
                                               GTK_BUTTONS_NONE,
-                                              "<span size='large' weight='bold'>Are you sure you want to exit?</span>");
+                                              "<span size='large' weight='bold'>กรุณายืนยันออกจากโปรแกรม</span>");
 
   gtk_dialog_add_buttons(GTK_DIALOG(dialog),
                          "Yes",
@@ -47,7 +47,7 @@ void btnExit_click(GtkWidget *widget, gpointer userdata) {
                                   GTK_DIALOG_MODAL,
                                   GTK_MESSAGE_QUESTION,
                                   GTK_BUTTONS_YES_NO,
-                                  "Are you sure you want to exit?");
+                                  "กรุณายืนยันออกจากโปรแกรม");
 
   result = gtk_dialog_run(GTK_DIALOG(dialog));
   gtk_widget_destroy(dialog);
@@ -59,36 +59,7 @@ void btnExit_click(GtkWidget *widget, gpointer userdata) {
   // If the user clicked "No" or closed the dialog box, do nothing and return to the program.
 }
 
-
 /*
-
-G_MODULE_EXPORT
-void on_btnNew_clicked (GtkWidget *widget, gpointer userdata){
-  g_print ("btnNew::clicked\n");
-
-  GtkWidget *treeView = (GtkWidget*) gtk_builder_get_object (builder, "treeviewRoute");
-  GtkWidget *entRoute = (GtkWidget*) gtk_builder_get_object (builder, "entRoute");
-  GtkWidget *cmbType = (GtkWidget*) gtk_builder_get_object (builder, "cmbType");
-  GtkWidget *cmbFrom = (GtkWidget*) gtk_builder_get_object (builder, "cmbFrom");
-  GtkWidget *cmbDest = (GtkWidget*) gtk_builder_get_object (builder, "cmbDest");
-  GtkWidget *btnSave = (GtkWidget*) gtk_builder_get_object (builder, "btnSave");
-  GtkWidget *btnDelete = (GtkWidget*) gtk_builder_get_object (builder, "btnDelete");
-  
-  GtkTreeSelection *selected = gtk_tree_view_get_selection (GTK_TREE_VIEW(treeView));
-  gtk_tree_selection_unselect_all (GTK_TREE_SELECTION(selected));
-
-  gtk_entry_set_text (GTK_ENTRY(entRoute), "");
-  gtk_combo_box_set_active (GTK_COMBO_BOX(cmbType), 0);
-  gtk_combo_box_set_active (GTK_COMBO_BOX(cmbFrom), 0);
-  gtk_combo_box_set_active (GTK_COMBO_BOX(cmbDest), 0);
-  gtk_widget_set_sensitive (entRoute, TRUE);
-  gtk_widget_set_sensitive (cmbType, TRUE);
-  gtk_widget_set_sensitive (btnSave, FALSE);
-  gtk_widget_set_sensitive (btnDelete, FALSE);
-
-  gtk_widget_grab_focus (entRoute);
-}
-
 static GtkTreeModel *
 create_model_from (void) {
 
@@ -259,7 +230,7 @@ static void activate(GtkApplication* app, gpointer userdata){
   mobj->edit = 0;
   g_print ("%s\n", mobj->message);
 
-  mobj->treeview = (GtkWidget*) gtk_builder_get_object (mobj->builder, "treeViewRoute");
+  mobj->treeview = (GtkWidget*) gtk_builder_get_object (mobj->builder, "treeviewRoute");
   mobj->entRoute = (GtkWidget*) gtk_builder_get_object (mobj->builder, "entRoute");
   mobj->cmbType = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbType");
   mobj->cmbFrom = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbFrom");

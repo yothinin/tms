@@ -39,9 +39,14 @@ void enableWidget(RouteWidgets mobj, gpointer user_data){
 void btnNew_click (GtkWidget *widget, gpointer user_data){
   RouteWidgets *mobj = (RouteWidgets*) user_data;
 
-  //mobj->treeSelected = gtk_tree_view_get_selection (GTK_TREE_VIEW(mobj->treeview));
-  //gtk_tree_selection_unselect_all (GTK_TREE_SELECTION(mobj->treeSelected));
+  mobj->treeSelected = gtk_tree_view_get_selection (GTK_TREE_VIEW(mobj->treeview));
+  gtk_tree_selection_unselect_all (GTK_TREE_SELECTION(mobj->treeSelected));
 
+  gtk_entry_set_text (GTK_ENTRY(mobj->entRoute), "");
+  gtk_combo_box_set_active (GTK_COMBO_BOX(mobj->cmbType), 0);
+  gtk_combo_box_set_active (GTK_COMBO_BOX(mobj->cmbFrom), 0);
+  gtk_combo_box_set_active (GTK_COMBO_BOX(mobj->cmbDest), 0);
+  
   gtk_widget_set_sensitive (mobj->entRoute, TRUE);
   gtk_widget_set_sensitive (mobj->cmbType, FALSE);
   gtk_widget_set_sensitive (mobj->cmbFrom, FALSE);
@@ -54,6 +59,25 @@ void btnNew_click (GtkWidget *widget, gpointer user_data){
   
   gtk_widget_grab_focus (mobj->entRoute);
 }
+
+//void btnNew_clicked (GtkWidget *widget, gpointer user_data){
+  //g_print ("btnNew::clicked\n");
+
+  //RouteWidgets *mobj = (RouteWidgets*) user_data;
+  //mobj->treeSelected = gtk_tree_view_get_selection (GTK_TREE_VIEW (mobj->treeview));
+  //gtk_tree_selection_unselect_all (GTK_TREE_SELECTION (mboj->treeSelected));
+
+  //gtk_entry_set_text (GTK_ENTRY(mobj->entRoute), "");
+  //gtk_combo_box_set_active (GTK_COMBO_BOX(mobj->cmbType), 0);
+  //gtk_combo_box_set_active (GTK_COMBO_BOX(mobj->cmbFrom), 0);
+  //gtk_combo_box_set_active (GTK_COMBO_BOX(mobj->cmbDest), 0);
+  //gtk_widget_set_sensitive (mobj->entRoute, TRUE);
+  //gtk_widget_set_sensitive (mobj->cmbType, TRUE);
+  //gtk_widget_set_sensitive (mobj->btnSave, FALSE);
+  //gtk_widget_set_sensitive (mobj->btnDelete, FALSE);
+
+  //gtk_widget_grab_focus (mobj->entRoute);
+//}
 
 
 void entRoute_focus (GtkWidget *widget, gpointer user_data){
@@ -88,13 +112,14 @@ void insertDataToTreeListStore(RouteWidgets *mobj) {
   GList *routeList = getAllRoutes ();
   for (GList *l = routeList; l != NULL; l = l->next) {
     Route *route = (Route *)l->data;
-    g_print("rouCode: %s, routName: %s, rouDirection: %s, staFrom: %s, staTo: %s\n", route->rouCode, route->rouName, route->rouDirection, route->staFrom, route->staTo);
+    g_print("rouCode: %s, routNameFrom: %s, rouNameTo: %s, rouDirection: %s, staFrom: %s, staTo: %s\n", route->rouCode, route->rouNameFrom, route->rouNameTo, route->rouDirection, route->staFrom, route->staTo);
     gtk_list_store_append (mobj->treeListStore, &mobj->treeIter);
     gtk_list_store_set (mobj->treeListStore, &mobj->treeIter, 0, route->rouCode,
-                                                              1, route->rouName,
-                                                              2, route->rouDirection,
-                                                              3, route->staFrom,
-                                                              4, route->staTo, -1);
+                                                              1, route->rouNameFrom,
+                                                              2, route->rouNameTo,
+                                                              3, route->rouDirection,
+                                                              4, route->staFrom,
+                                                              5, route->staTo, -1);
   }
   g_list_free_full(routeList, freeRoute);
 }

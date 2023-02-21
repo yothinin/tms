@@ -70,12 +70,16 @@ GList *getAllRoutes () {
   GList *routeList = NULL;
   MYSQL_ROW row;
   while ((row = mysql_fetch_row(res))) {
-    Route *route = g_new(Route, 1);
+    //Route *route = g_new(Route, 1);
+    Route *route = malloc (sizeof (Route)); 
+    //struct MyStruct* myStruct = malloc(sizeof(struct MyStruct));
+
     route->rouCode = g_strdup(row[0]);
-    route->rouName = g_strdup(row[1]);
-    route->rouDirection = g_strdup(row[2]);
-    route->staFrom = g_strdup(row[3]);
-    route->staTo = g_strdup(row[4]);
+    route->rouNameFrom = g_strdup(row[1]);
+    route->rouNameTo = g_strdup(row[2]);
+    route->rouDirection = g_strdup(row[3]);
+    route->staFrom = g_strdup(row[4]);
+    route->staTo = g_strdup(row[5]);
 
     routeList = g_list_append(routeList, route);
   }
@@ -84,6 +88,7 @@ GList *getAllRoutes () {
   return routeList;
 }
 
+/*
 Route getStationNameByCode (Station station){
   MYSQL *conn = connect_to_db ();
   MYSQL_RES *result;
@@ -110,7 +115,7 @@ Route getStationNameByCode (Station station){
 
   return station;
 }
-
+*/
 
 /*
 
