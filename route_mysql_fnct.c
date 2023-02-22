@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <mariadb/mysql.h>
 #include "route_mysql_fnct.h"
+#include "station_struct.h"
 #include "functions.h"
 
 #define CONFIG_FILE ".mysql_options"
@@ -54,7 +55,7 @@ int delete(MYSQL *conn, const char *sql) {
 // Call from insertDataToTreeListStore() in widget_route_fnct.c
 GList *getAllRoutes () {
   MYSQL *conn = connect_to_db();
-  gchar *query = "SELECT r.rou_code, s1.sta_name, s2.sta_name, IF (rou_direction='0', 'O', 'I') as rou_direction, r.sta_from, r.sta_to FROM route r LEFT JOIN station s1 ON r.sta_from = s1.sta_code LEFT JOIN station s2 ON r.sta_to = s2.sta_code ORDER BY r.rou_code, r.rou_direction;";
+  gchar *query = "SELECT r.rou_code, s1.sta_name, s2.sta_name, rou_direction, r.sta_from, r.sta_to FROM route r LEFT JOIN station s1 ON r.sta_from = s1.sta_code LEFT JOIN station s2 ON r.sta_to = s2.sta_code ORDER BY r.rou_code, r.rou_direction;";
 
   if (mysql_query(conn, query) != 0) {
     g_error("mysql_query() failed: %s", mysql_error(conn));
@@ -88,14 +89,44 @@ GList *getAllRoutes () {
   return routeList;
 }
 
-/*
-Route getStationNameByCode (Station station){
+GList *getAllStations () {
+  MYSQL *conn = connect_to_db();
+  gchar *query = "SELECT sta_code, sta_name FROM station ORDER BY sta_code;";
+
+  if (mysql_query(conn, query) != 0) {
+    g_error("mysql_query() failed: %s", mysql_error(conn));
+    return NULL;
+  }
+
+  MYSQL_RES *res = mysql_use_result(conn);
+  if (res == NULL) {
+    g_error("mysql_use_result() failed: %s", mysql_error(conn));
+    return NULL;
+  }
+
+  GList *stationList = NULL;
+  MYSQL_ROW row;
+  while ((row = mysql_fetch_row(res))) {
+    //Route *route = g_new(Route, 1);
+    Station *station = malloc (sizeof (Station)); 
+
+    station->staCode = g_strdup(row[0]);
+    station->staName = g_strdup(row[1]);
+
+    stationList = g_list_append(stationList, station);
+  }
+  mysql_free_result(res);
+  
+  return stationList;
+}
+
+Route getRouteByCode (Route route){
   MYSQL *conn = connect_to_db ();
   MYSQL_RES *result;
   MYSQL_ROW row;
   // Build the query using the station code
   gchar sql[1000];
-  sprintf(sql, "SELECT sta_name FROM station WHERE sta_code='%s'", station.staCode);
+  sprintf(sql, "SELECT s1.sta_name, s2.sta_name, rou_direction, r.sta_from, r.sta_to FROM route r LEFT JOIN station s1 ON r.sta_from = s1.sta_code LEFT JOIN station s2 ON r.sta_to = s2.sta_code WHERE rou_code = '%s' ORDER BY r.rou_code, r.rou_direction;", route.rouCode);
 
   if (query(conn, sql)) {
     fprintf(stderr, "Error: failed to execute query\n");
@@ -105,17 +136,22 @@ Route getStationNameByCode (Station station){
 
   result = mysql_use_result (conn);
  
-  if ((row = mysql_fetch_row (result)) != NULL)
-    station.staName = g_strdup (row[0]);
-  else
-    station.staName = NULL;
+  if ((row = mysql_fetch_row (result)) != NULL){
+    route.rouNameFrom = g_strdup (row[0]);
+    route.rouNameTo = g_strdup (row[1]);
+    route.rouDirection = g_strdup (row[2]);
+    route.staFrom = g_strdup (row[3]);
+    route.staTo = g_strdup (row[4]);
+  } else {
+    route.rouNameFrom = NULL;
+  }
   
   mysql_free_result(result);
   close_db_connection(conn);
 
-  return station;
+  return route;
 }
-*/
+
 
 /*
 

@@ -12,7 +12,9 @@ void enableWidget(RouteWidgets mobj);
 void btnNew_click (GtkWidget *widget, gpointer user_data);
 gboolean entRoute_release (GtkWidget *widget, GdkEventKey *event, gpointer user_data);
 void entRoute_focus (GtkWidget *widget, gpointer user_data);
-void insertDataToTreeListStore(RouteWidgets *mobj);
+void insertDataToTreeListStore (RouteWidgets *mobj);
+void insertDataToCmbListStore (RouteWidgets *mobj);
+void cmbDirection_change (GtkComboBox *combo_box, gpointer user_data);
 
 /*
 gboolean entStaName_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata);

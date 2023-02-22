@@ -1,10 +1,10 @@
 use tms_db;
 drop table if exists route;
-                      
+
 create table route(
   rou_id int auto_increment,
   rou_code varchar (4) not null,
-  rou_direction char (1) not null,
+  rou_direction char(1) not null,
   sta_from varchar (5) not null,
   sta_to varchar (5) not null,
   primary key (rou_id)

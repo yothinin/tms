@@ -232,7 +232,7 @@ static void activate(GtkApplication* app, gpointer userdata){
 
   mobj->treeview = (GtkWidget*) gtk_builder_get_object (mobj->builder, "treeviewRoute");
   mobj->entRoute = (GtkWidget*) gtk_builder_get_object (mobj->builder, "entRoute");
-  mobj->cmbType = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbType");
+  mobj->cmbDirection = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbDirection");
   mobj->cmbFrom = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbFrom");
   mobj->cmbDest = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbDest");
   mobj->btnNew = (GtkWidget*) gtk_builder_get_object (mobj->builder, "btnNew");
@@ -240,11 +240,13 @@ static void activate(GtkApplication* app, gpointer userdata){
   mobj->btnExit = (GtkWidget*) gtk_builder_get_object (mobj->builder, "btnExit");
   mobj->btnDelete = (GtkWidget*) gtk_builder_get_object (mobj->builder, "btnDelete");
   mobj->treeListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "liststore1");
-  mobj->typeListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "routeDirection");
+  //mobj->typeListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "routeDirection");
+  //mobj->cmbListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "stationLists");
   mobj->fromListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "stationLists");
-  mobj->destListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "stationLists");
+  //mobj->destListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "stationLists");
   
   insertDataToTreeListStore (mobj);
+  insertDataToCmbListStore (mobj);
   btnNew_click (NULL, mobj);
 
   /*
@@ -258,6 +260,7 @@ static void activate(GtkApplication* app, gpointer userdata){
 
   g_signal_connect (mobj->entRoute, "focus-in-event", G_CALLBACK (entRoute_focus), mobj);
   g_signal_connect (mobj->entRoute, "key-release-event", G_CALLBACK (entRoute_release), mobj);
+  g_signal_connect (mobj->cmbDirection, "changed", G_CALLBACK (cmbDirection_change), mobj);
   g_signal_connect (mobj->btnNew, "clicked", G_CALLBACK (btnNew_click), mobj);
   g_signal_connect (mobj->btnExit, "clicked", G_CALLBACK (btnExit_click), mobj);
   //g_signal_connect (mobj->window, "destroy", G_CALLBACK (btnExit_click), mobj);

@@ -48,20 +48,18 @@ typedef struct {
   GtkWidget *btnExit;
   gint edit;
 
-  GtkWidget *cmbType;
-  GtkTreeModel *typeModel;
-  GtkListStore *typeListStore;
-  GtkTreeIter *typeIter;
+  GtkWidget *cmbDirection;
+  GtkTreeModel *directModel;
+  GtkListStore *directListStore;
+  GtkTreeIter directIter;
 
   GtkWidget *cmbFrom;
   GtkTreeModel *fromModel;
-  GtkListStore *fromListStore;
-  GtkTreeIter *fromIter;
 
   GtkWidget *cmbDest;
   GtkTreeModel *destModel;
-  GtkListStore *destListStore;
-  GtkTreeIter *destIter;
+
+  GtkListStore *fromListStore;
   
   gchar *message;
   

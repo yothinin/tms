@@ -14,5 +14,7 @@ gboolean updateRoute (Route route);
 gboolean insertRoute (Route route);
 gboolean deleteRoute (Route route);
 GList *getAllRoutes ();
+GList *getAllStations ();
+Route getRouteByCode (Route route);
 
 #endif
