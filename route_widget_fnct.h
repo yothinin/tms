@@ -15,6 +15,7 @@ void entRoute_focus (GtkWidget *widget, gpointer user_data);
 void insertDataToTreeListStore (RouteWidgets *mobj);
 void insertDataToCmbListStore (RouteWidgets *mobj);
 void cmbDirection_change (GtkComboBox *combo_box, gpointer user_data);
+void set_buttons_sensitive(GtkComboBox *cmb_from, GtkComboBox *cmb_dest, GtkButton *btn_save, GtkButton *btn_delete, gint first_item_index);
 
 /*
 gboolean entStaName_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata);

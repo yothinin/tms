@@ -25,17 +25,17 @@
  * click is the behavior for the button
  */
 
-/*
-void disableWidget(RouteWidgets mobj, gpointer user_data){
-  RouteWidgets *mobj = (RouteWidgets*) user_data;
-  gtk_widget_set_sensitive (mobj->cmbType, FALSE);
-  gtk_widget_set_sensitive (mobj->entRoute, FALSE);
+void set_buttons_sensitive(GtkComboBox *cmb_from, GtkComboBox *cmb_dest, GtkButton *btn_save, GtkButton *btn_delete, gint first_item_index) {
+    if (gtk_combo_box_get_active(cmb_from) !`= first_item_index && gtk_combo_box_get_active(cmb_dest) != first_item_index) {
+        // Do something if active is not the first item
+        gtk_widget_set_sensitive(GTK_WIDGET(btn_save), TRUE);
+        gtk_widget_set_sensitive(GTK_WIDGET(btn_delete), TRUE);
+    } else {
+        // Do something if active is the first item
+        gtk_widget_set_sensitive(GTK_WIDGET(btn_save), FALSE);
+        gtk_widget_set_sensitive(GTK_WIDGET(btn_delete), FALSE);
+    }
 }
-
-void enableWidget(RouteWidgets mobj, gpointer user_data){
-  gtk_widget_set_sensitive (mobj->entRoute, TRUE);
-}
-*/
 
 void btnNew_click (GtkWidget *widget, gpointer user_data){
   RouteWidgets *mobj = (RouteWidgets*) user_data;
@@ -112,18 +112,31 @@ void cmbDirection_change (GtkComboBox *combo_box, gpointer user_data) {
                                                         route.staFrom,
                                                         route.staTo);
     GtkTreeIter from_iter, dest_iter;
-    searchCombo(mobj->cmbFrom, route.staFrom, &from_iter);
-    searchCombo(mobj->cmbDest, route.staTo, &dest_iter);
+    searchCombo(GTK_COMBO_BOX (mobj->cmbFrom), route.staFrom, &from_iter);
+    searchCombo(GTK_COMBO_BOX (mobj->cmbDest), route.staTo, &dest_iter);
   
-    gtk_combo_box_set_active_iter(mobj->cmbFrom, &from_iter);
-    gtk_combo_box_set_active_iter(mobj->cmbDest, &dest_iter);
+    gtk_combo_box_set_active_iter(GTK_COMBO_BOX (mobj->cmbFrom), &from_iter);
+    gtk_combo_box_set_active_iter(GTK_COMBO_BOX (mobj->cmbDest), &dest_iter);
+    mobj->edit = 1; // Edit
+    gtk_button_set_label (GTK_BUTTON (mobj->btnSave), "แก้ไข");
+    
+    set_buttons_sensitive(GTK_COMBO_BOX(mobj->cmbFrom), 
+                          GTK_COMBO_BOX(mobj->cmbDest), 
+                          GTK_BUTTON (mobj->btnSave), 
+                          GTK_BUTTON (mobj->btnDelete), 
+                          0);
+
   } else {
     g_print ("Data not found!, %s - %s\n", route.rouCode, route.rouDirection);
-    
-    //gtk_combo_box_set_active_id (mobj->cmbFrom, 0);
-    //gtk_combo_box_set_active_id (mobj->cmbDest, 0);
-    gtk_combo_box_set_active (mobj->cmbFrom, 0);
-    gtk_combo_box_set_active (mobj->cmbDest, 0);
+    mobj->edit = 0; // New
+    gtk_button_set_label (GTK_BUTTON (mobj->btnSave), "บันทึก");
+    //gtk_combo_box_set_active_id (GTK_COMBO_BOX (mobj->cmbFrom), "ท่าวังผา");
+    //gtk_combo_box_set_active_id (GTK_COMBO_BOX (mobj->cmbDest), "เชียงใหม่");
+    gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbFrom), 0);
+    gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbDest), 0);
+    gtk_widget_set_sensitive (mobj->btnSave, FALSE);
+    gtk_widget_set_sensitive (mobj->btnDelete, FALSE);
+
   }
   
   gtk_widget_set_sensitive (mobj->cmbFrom, TRUE);
@@ -171,8 +184,8 @@ void insertDataToCmbListStore(RouteWidgets *mobj) {
     gtk_list_store_set (mobj->fromListStore, &cmbIter, 0, station->staCode,
                                                       1, station->staName, -1);
   }
-  gtk_combo_box_set_active_id (GTK_COMBO_BOX (mobj->cmbFrom), 0);
-  gtk_combo_box_set_active_id (GTK_COMBO_BOX (mobj->cmbDest), 0);
+  gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbFrom), 0);
+  gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbDest), 0);
   g_list_free_full(stationList, freeStation);
 }
 
