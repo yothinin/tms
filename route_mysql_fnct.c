@@ -126,7 +126,9 @@ Route getRouteByCode (Route route){
   MYSQL_ROW row;
   // Build the query using the station code
   gchar sql[1000];
-  sprintf(sql, "SELECT s1.sta_name, s2.sta_name, rou_direction, r.sta_from, r.sta_to FROM route r LEFT JOIN station s1 ON r.sta_from = s1.sta_code LEFT JOIN station s2 ON r.sta_to = s2.sta_code WHERE rou_code = '%s' ORDER BY r.rou_code, r.rou_direction;", route.rouCode);
+  sprintf(sql, "SELECT s1.sta_name, s2.sta_name, r.sta_from, r.sta_to FROM route r LEFT JOIN station s1 ON r.sta_from = s1.sta_code LEFT JOIN station s2 ON r.sta_to = s2.sta_code WHERE rou_code = '%s' and rou_direction = '%s' ORDER BY r.rou_code, r.rou_direction;", route.rouCode, route.rouDirection);
+
+  g_print ("%s\n", sql);
 
   if (query(conn, sql)) {
     fprintf(stderr, "Error: failed to execute query\n");
@@ -139,9 +141,8 @@ Route getRouteByCode (Route route){
   if ((row = mysql_fetch_row (result)) != NULL){
     route.rouNameFrom = g_strdup (row[0]);
     route.rouNameTo = g_strdup (row[1]);
-    route.rouDirection = g_strdup (row[2]);
-    route.staFrom = g_strdup (row[3]);
-    route.staTo = g_strdup (row[4]);
+    route.staFrom = g_strdup (row[2]);
+    route.staTo = g_strdup (row[3]);
   } else {
     route.rouNameFrom = NULL;
   }

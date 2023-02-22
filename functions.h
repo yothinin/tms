@@ -9,5 +9,6 @@ GtkTreeIter *get_iter (const gchar* str, gint col, int ext_condition, gpointer u
 void display_warning_message(const gchar *message);
 void freeRoute(gpointer data);
 void freeStation (gpointer data);
+void searchCombo(GtkComboBox *combo_box, const gchar *text, GtkTreeIter *result);
 
 #endif //FUNCTIONS_H

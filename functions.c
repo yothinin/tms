@@ -93,3 +93,28 @@ void freeStation (gpointer data){
   g_free (station->staName);
   g_free (station);
 }
+
+void searchCombo(GtkComboBox *combo_box, const gchar *text, GtkTreeIter *result) {
+  GtkTreeModel *model;
+  GtkTreeIter iter;
+  gboolean valid;
+
+  model = gtk_combo_box_get_model(combo_box);
+  valid = gtk_tree_model_get_iter_first(model, &iter);
+
+  while (valid) {
+    gchar *val;
+    gtk_tree_model_get(model, &iter, 0, &val, -1);
+    if (g_strcmp0(val, text) == 0) {
+      *result = iter;
+      g_free(val);
+      return;
+    }
+    g_free(val);
+    valid = gtk_tree_model_iter_next(model, &iter);
+  }
+
+  // If no match is found, return an invalid iterator
+  gtk_tree_model_get_iter_first(model, result);
+  gtk_tree_model_get(model, result, 0, &result, -1);
+}

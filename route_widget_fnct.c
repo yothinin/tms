@@ -101,18 +101,39 @@ void cmbDirection_change (GtkComboBox *combo_box, gpointer user_data) {
   gtk_tree_model_get(mobj->directModel, &mobj->directIter, 0, &directVal, -1);
 
   gchar *rouCode = (gchar *)gtk_entry_get_text(GTK_ENTRY(mobj->entRoute));
-  Route route = {rouCode, directVal, NULL, NULL, NULL, NULL};
+  Route route = {rouCode, NULL, NULL, directVal, NULL, NULL};
 
   route = getRouteByCode (route);
-  g_print ("route: %s, %s, %s, direct: %s, %s, %s\n", route.rouCode,
-                                       route.rouNameFrom,
-                                       route.rouNameTo,
-                                       route.rouDirection,
-                                       route.staFrom,
-                                       route.staTo);
-  //freeRoute (&route);
-  //g_free (rouCode);
-  //g_free (directVal);
+  if (route.rouNameFrom != NULL){
+    g_print ("route: %s, %s, %s, direct: %s, %s, %s\n", route.rouCode,
+                                                        route.rouNameFrom,
+                                                        route.rouNameTo,
+                                                        route.rouDirection,
+                                                        route.staFrom,
+                                                        route.staTo);
+    GtkTreeIter from_iter, dest_iter;
+    searchCombo(mobj->cmbFrom, route.staFrom, &from_iter);
+    searchCombo(mobj->cmbDest, route.staTo, &dest_iter);
+  
+    gtk_combo_box_set_active_iter(mobj->cmbFrom, &from_iter);
+    gtk_combo_box_set_active_iter(mobj->cmbDest, &dest_iter);
+  } else {
+    g_print ("Data not found!, %s - %s\n", route.rouCode, route.rouDirection);
+    
+    gtk_combo_box_set_active_id (mobj->cmbFrom, 0);
+    gtk_combo_box_set_active_id (mobj->cmbDest, 0);
+  }
+  
+  gtk_widget_set_sensitive (mobj->cmbFrom, TRUE);
+  gtk_widget_set_sensitive (mobj->cmbDest, TRUE);
+    
+  g_free (route.rouNameFrom);
+  g_free (route.rouNameTo);
+  g_free (route.staFrom);
+  g_free (route.staTo);
+  
+  //g_free (rouCode); //rouCode isn't allocate, should not be freed by g_free.
+  g_free (directVal);
 }
 
 void insertDataToTreeListStore(RouteWidgets *mobj) {
@@ -134,14 +155,13 @@ void insertDataToTreeListStore(RouteWidgets *mobj) {
 
 void insertDataToCmbListStore(RouteWidgets *mobj) {
   // This function insert data from GList to GtkListStore
-  //GtkTreeIter cmbIter;
+  GtkTreeIter cmbIter;
   GList *stationList = getAllStations ();
-  //gtk_list_store_clear (mobj->cmbListStore);
-  //gtk_list_store_append (mobj->cmbListStore, &cmbIter);
-  //gtk_list_store_set (mobj->cmbListStore, &cmbIter, 0, "0",
-  //                                                  1, " ", -1);
+  gtk_list_store_clear (mobj->fromListStore);
+  gtk_list_store_append (mobj->fromListStore, &cmbIter);
+  gtk_list_store_set (mobj->fromListStore, &cmbIter, 0, "0", 1, " ", -1);
   for (GList *l = stationList; l != NULL; l = l->next) {
-    GtkTreeIter cmbIter;
+    //GtkTreeIter cmbIter;
     Station *station = (Station *)l->data;
     g_print("staCode: %s, staName: %s\n", station->staCode, station->staName);
     
@@ -156,42 +176,6 @@ void insertDataToCmbListStore(RouteWidgets *mobj) {
 
 
 /*
-void btnDemo_click (GtkWidget *widget, gpointer userdata){
-  MyObjects *mobj = (MyObjects*) userdata;
-  g_print ("demo clicked\n");
-  
-  int i;
-  for (i = 0; i < 20000; i++){
-    gtk_list_store_append (mobj->liststore, &mobj->iter);
-    gchar code[6], name[6];
-    sprintf (code, "%05d", i);
-    sprintf (name, "%05d", i);
-    gtk_list_store_set (mobj->liststore, &mobj->iter, 0, code, 1, name, -1); // Insert value
-  }
-}
-
-void entStaName_focus (GtkWidget *widget, gpointer userdata){
-  change_keyb ("th");
-}
-
-gboolean entStaName_release (GtkWidget *widget, GdkEventKey *event, gpointer userdata){
-  MyObjects *mobj = (MyObjects*) userdata;
-  const gchar *staname = gtk_entry_get_text (GTK_ENTRY(mobj->entStaName));
-  if (strcmp(gdk_keyval_name(event->keyval), "Return") == 0  ||
-      strcmp(gdk_keyval_name(event->keyval), "KP_Enter") == 0){
-
-    gtk_widget_grab_focus (mobj->btnSave);
-
-    return TRUE;
-  }else {
-    if (strlen(staname) > 0)
-      gtk_widget_set_sensitive (mobj->btnSave, TRUE);
-    else
-      gtk_widget_set_sensitive (mobj->btnSave, FALSE);    
-  }
-
-  return FALSE;
-}
 
 void btnDelete_click (GtkWidget *widget, gpointer userdata){
   MyObjects *mobj = (MyObjects*) userdata;
@@ -219,24 +203,6 @@ void btnDelete_click (GtkWidget *widget, gpointer userdata){
       }
     }
 }
-
-//void row_change (GtkWidget *treeView, gpointer userdata) {
-  //MyObjects *mobj = (MyObjects*) userdata;
-  //mobj->model = gtk_tree_view_get_model (GTK_TREE_VIEW (mobj->treeview));
-  //mobj->selected = gtk_tree_view_get_selection(GTK_TREE_VIEW(mobj->treeview));
-  //if (gtk_tree_selection_get_selected(mobj->selected, &mobj->model, &mobj->iter)){
-    //const gchar *staCode, *staName;
-    //gtk_tree_model_get (mobj->model, &mobj->iter, 0, &staCode, 1, &staName, -1);
-    //gtk_entry_set_text (GTK_ENTRY(mobj->entStaCode), staCode);
-    //gtk_entry_set_text (GTK_ENTRY(mobj->entStaName), staName);
-    //gtk_widget_set_sensitive (mobj->entStaCode, FALSE);
-    //gtk_widget_set_sensitive (mobj->entStaName, TRUE);
-    //gtk_button_set_label (GTK_BUTTON(mobj->btnSave), "แก้ไข");
-    //gtk_widget_set_sensitive (mobj->btnSave, TRUE);
-    //gtk_widget_set_sensitive (mobj->btnDelete, TRUE);
-    //mobj->edit = 1; //edit
-  //}
-//}
 
 void row_change (GtkWidget *treeView, gpointer userdata) {
   MyObjects *mobj = (MyObjects*) userdata;
