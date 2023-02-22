@@ -71,9 +71,9 @@ gboolean entRoute_release (GtkWidget *widget, GdkEventKey *event, gpointer user_
   if (strcmp(gdk_keyval_name(event->keyval), "Return") == 0  ||
       strcmp(gdk_keyval_name(event->keyval), "KP_Enter") == 0){
 
-    //const gchar *const_rouCode = gtk_entry_get_text(GTK_ENTRY(mobj->entRoute));
-    //gchar *rouCode = g_strdup(const_rouCode);
-    
+    gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbDirection), 0);
+    gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbFrom), 0);
+    gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbDest), 0);
     gtk_widget_grab_focus (mobj->cmbDirection);
     
     return TRUE;
@@ -120,8 +120,10 @@ void cmbDirection_change (GtkComboBox *combo_box, gpointer user_data) {
   } else {
     g_print ("Data not found!, %s - %s\n", route.rouCode, route.rouDirection);
     
-    gtk_combo_box_set_active_id (mobj->cmbFrom, 0);
-    gtk_combo_box_set_active_id (mobj->cmbDest, 0);
+    //gtk_combo_box_set_active_id (mobj->cmbFrom, 0);
+    //gtk_combo_box_set_active_id (mobj->cmbDest, 0);
+    gtk_combo_box_set_active (mobj->cmbFrom, 0);
+    gtk_combo_box_set_active (mobj->cmbDest, 0);
   }
   
   gtk_widget_set_sensitive (mobj->cmbFrom, TRUE);
