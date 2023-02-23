@@ -10,5 +10,6 @@ void display_warning_message(const gchar *message);
 void freeRoute(gpointer data);
 void freeStation (gpointer data);
 void searchCombo(GtkComboBox *combo_box, const gchar *text, GtkTreeIter *result);
+gint find_combo_box_index(GtkComboBox *combo_box, const gchar *id);
 
 #endif //FUNCTIONS_H

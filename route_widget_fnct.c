@@ -171,8 +171,6 @@ void cmbDirection_change (GtkComboBox *combo_box, gpointer user_data) {
     g_print ("Data not found!, %s - %s\n", route.rouCode, route.rouDirection);
     mobj->edit = 0; // New
     gtk_button_set_label (GTK_BUTTON (mobj->btnSave), "บันทึก");
-    //gtk_combo_box_set_active_id (GTK_COMBO_BOX (mobj->cmbFrom), "ท่าวังผา");
-    //gtk_combo_box_set_active_id (GTK_COMBO_BOX (mobj->cmbDest), "เชียงใหม่");
     gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbFrom), 0);
     gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbDest), 0);
     gtk_widget_set_sensitive (mobj->btnSave, FALSE);
@@ -182,7 +180,6 @@ void cmbDirection_change (GtkComboBox *combo_box, gpointer user_data) {
   
   gtk_widget_set_sensitive (mobj->cmbFrom, TRUE);
   gtk_widget_set_sensitive (mobj->cmbDest, TRUE);
-  //gtk_widget_grab_focus(mobj->cmbFrom); 
     
   g_free (route.rouNameFrom);
   g_free (route.rouNameTo);
@@ -194,7 +191,7 @@ void cmbDirection_change (GtkComboBox *combo_box, gpointer user_data) {
 }
 
 gboolean cmbDirection_key_press(GtkWidget *widget, GdkEventKey *event, gpointer user_data) {
-    // Cast user_data to RouteWidgets
+    // Cast user_data to mobj
     RouteWidgets *mobj = (RouteWidgets*) user_data;
 
     // Check if the key pressed was Enter
@@ -263,14 +260,14 @@ void cmbDest_change(GtkComboBox *cmbDest, gpointer user_data) {
 }
 
 void btnSave_click(GtkButton *button, gpointer user_data) {
-  RouteWidgets *routeWidgets = (RouteWidgets *)user_data;
+  RouteWidgets *mobj = (RouteWidgets *)user_data;
 
-  if (!validateRouteInput(routeWidgets)) {
+  if (!validateRouteInput(mobj)) {
     return;
   }
 
   Route route = {
-      .rouCode = (gchar *)gtk_entry_get_text(GTK_ENTRY(routeWidgets->entRoute)),
+      .rouCode = (gchar *)gtk_entry_get_text(GTK_ENTRY(mobj->entRoute)),
       .rouNameFrom = NULL,
       .rouNameTo = NULL,
       .rouDirection = NULL,
@@ -279,32 +276,21 @@ void btnSave_click(GtkButton *button, gpointer user_data) {
   };
   
   GtkTreeIter iter;
-  GtkTreeModel *model;
-  if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(routeWidgets->cmbFrom), &iter)) {
-      model = gtk_combo_box_get_model(GTK_COMBO_BOX(routeWidgets->cmbFrom));
-      gtk_tree_model_get(model, &iter, 0, &(route.rouNameFrom), -1);
-  }
-  
-  if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(routeWidgets->cmbDest), &iter)) {
-      model = gtk_combo_box_get_model(GTK_COMBO_BOX(routeWidgets->cmbDest));
-      gtk_tree_model_get(model, &iter, 0, &(route.rouNameTo), -1);
-  }
-  
-  if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(routeWidgets->cmbDirection), &iter)) {
-      model = gtk_combo_box_get_model(GTK_COMBO_BOX(routeWidgets->cmbDirection));
+  GtkTreeModel *model;  
+  if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(mobj->cmbDirection), &iter)) {
+      model = gtk_combo_box_get_model(GTK_COMBO_BOX(mobj->cmbDirection));
       gtk_tree_model_get(model, &iter, 0, &(route.rouDirection), -1);
   }
   
-  // Get the selected iter from the cmbFrom combo box
   GtkTreeIter fromIter;
-  if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(routeWidgets->cmbFrom), &fromIter))
-    gtk_tree_model_get(GTK_TREE_MODEL (routeWidgets->fromListStore), &fromIter, 0, &(route.staFrom), -1);
+  if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(mobj->cmbFrom), &fromIter))
+    gtk_tree_model_get(GTK_TREE_MODEL (mobj->fromListStore), &fromIter, 0, &(route.staFrom), -1);
 
   GtkTreeIter destIter;
-  if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(routeWidgets->cmbDest), &destIter))
-    gtk_tree_model_get(GTK_TREE_MODEL (routeWidgets->fromListStore), &destIter, 0, &(route.staTo), -1);
+  if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(mobj->cmbDest), &destIter))
+    gtk_tree_model_get(GTK_TREE_MODEL (mobj->fromListStore), &destIter, 0, &(route.staTo), -1);
 
-  if (routeWidgets->edit == 0)
+  if (mobj->edit == 0)
     insertRoute (route);
   else
     updateRoute (route);
@@ -312,9 +298,9 @@ void btnSave_click(GtkButton *button, gpointer user_data) {
   g_print ("route: %s, %s, %s - %s\n", route.rouCode, route.rouDirection, route.staFrom, route.staTo);
 
   // clear the input fields
-  clearRouteInput(routeWidgets);
-  insertDataToTreeListStore(routeWidgets);
-  btnNew_click (NULL, routeWidgets);
+  clearRouteInput(mobj);
+  insertDataToTreeListStore(mobj);
+  btnNew_click (NULL, mobj);
 }
 
 void btnDelete_click (GtkWidget *widget, gpointer userdata){
@@ -344,37 +330,6 @@ void btnDelete_click (GtkWidget *widget, gpointer userdata){
 
   g_free (route->rouCode);
   g_free (route->rouDirection);
-}
-
-/**
- * Finds the index of the item in the combo box with the specified ID.
- * Returns -1 if no item is found.
- */
-gint find_combo_box_index(GtkComboBox *combo_box, const gchar *id)
-{
-    GtkTreeModel *model;
-    GtkTreeIter iter;
-    gint index = 0;
-
-    model = gtk_combo_box_get_model(combo_box);
-
-    if (gtk_tree_model_get_iter_first(model, &iter)) {
-        do {
-            gchar *item_id;
-
-            gtk_tree_model_get(model, &iter, 0, &item_id, -1);
-
-            if (g_strcmp0(item_id, id) == 0) {
-                g_free(item_id);
-                return index;
-            }
-
-            g_free(item_id);
-            index++;
-        } while (gtk_tree_model_iter_next(model, &iter));
-    }
-
-    return -1;
 }
 
 void row_change(GtkTreeSelection *selection, gpointer user_data) {

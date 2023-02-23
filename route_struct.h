@@ -50,14 +50,14 @@ typedef struct {
 
   GtkWidget *cmbDirection;
   GtkTreeModel *directModel;
-  GtkListStore *directListStore;
+  //GtkListStore *directListStore;
   GtkTreeIter directIter;
 
   GtkWidget *cmbFrom;
-  GtkTreeModel *fromModel;
+  //GtkTreeModel *fromModel;
 
   GtkWidget *cmbDest;
-  GtkTreeModel *destModel;
+  //GtkTreeModel *destModel;
 
   GtkListStore *fromListStore;
   

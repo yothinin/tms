@@ -118,3 +118,33 @@ void searchCombo(GtkComboBox *combo_box, const gchar *text, GtkTreeIter *result)
   gtk_tree_model_get_iter_first(model, result);
   gtk_tree_model_get(model, result, 0, &result, -1);
 }
+
+/**
+ * Finds the index of the item in the combo box with the specified ID.
+ * Returns -1 if no item is found.
+ */
+gint find_combo_box_index(GtkComboBox *combo_box, const gchar *id){
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    gint index = 0;
+
+    model = gtk_combo_box_get_model(combo_box);
+
+    if (gtk_tree_model_get_iter_first(model, &iter)) {
+        do {
+            gchar *item_id;
+
+            gtk_tree_model_get(model, &iter, 0, &item_id, -1);
+
+            if (g_strcmp0(item_id, id) == 0) {
+                g_free(item_id);
+                return index;
+            }
+
+            g_free(item_id);
+            index++;
+        } while (gtk_tree_model_iter_next(model, &iter));
+    }
+
+    return -1;
+}
