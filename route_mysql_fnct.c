@@ -153,34 +153,11 @@ Route getRouteByCode (Route route){
   return route;
 }
 
-
-/*
-
-gboolean updateStationName (Station station){
-  MYSQL *conn = connect_to_db();
-  gboolean result = FALSE;
-  gchar *sql = g_strdup_printf ("UPDATE station SET sta_name = '%s' WHERE sta_code = '%s'", station.staName, station.staCode);
-  
-  if (query (conn, sql) == 0){
-    result = TRUE;
-  }else {
-    fprintf(stderr, "Error: failed to execute query\n");
-    g_free (sql);
-    close_db_connection(conn);
-    exit (1);
-  }
-  
-  g_free (sql);
-  mysql_close (conn);
-
-  return result;
-}
-
-gboolean insertStation (Station station) {
+gboolean insertRoute (Route route) {
   MYSQL *conn = connect_to_db ();
   gboolean result = FALSE;
   
-  gchar *sql = g_strdup_printf ("INSERT INTO station (sta_code, sta_name) VALUE ('%s', '%s')", station.staCode, station.staName);
+  gchar *sql = g_strdup_printf ("INSERT INTO route (rou_code, rou_direction, sta_from, sta_to) VALUE ('%s', '%s', '%s', '%s')", route.rouCode, route.rouDirection, route.staFrom, route.staTo);
   
   if (query (conn, sql) == 0){
     result = TRUE;
@@ -197,15 +174,35 @@ gboolean insertStation (Station station) {
   return result;
 }
 
-gboolean deleteStation(const gchar *staCode) {
+gboolean updateRoute (Route route){
   MYSQL *conn = connect_to_db();
   gboolean result = FALSE;
-  gchar *sql = g_strdup_printf("DELETE FROM station WHERE sta_code = '%s'", staCode);
+  gchar *sql = g_strdup_printf ("UPDATE route SET sta_from = '%s', sta_to = '%s' WHERE rou_code = '%s' and rou_direction = '%s';", route.staFrom, route.staTo, route.rouCode, route.rouDirection);
+  
+  if (query (conn, sql) == 0){
+    result = TRUE;
+  }else {
+    fprintf(stderr, "Error: failed to execute query\n");
+    g_free (sql);
+    close_db_connection(conn);
+    exit (1);
+  }
+  
+  g_free (sql);
+  mysql_close (conn);
+
+  return result;
+}
+
+gboolean deleteRoute(Route *route) {
+  MYSQL *conn = connect_to_db();
+  gboolean result = FALSE;
+  gchar *sql = g_strdup_printf("DELETE FROM route WHERE rou_code = '%s' and rou_direction = '%s';", route->rouCode, route->rouDirection);
 
   if (query(conn, sql) == 0) {
     result = TRUE;
   } else {
-    gchar *warning_msg = g_strdup_printf("Cannot delete station '%s' because it is used in the route table.", staCode);
+    gchar *warning_msg = g_strdup_printf("Cannot delete route '%s'-'%s' because it is used in the schedule table.", route->rouCode, route->rouDirection);
     display_warning_message(warning_msg);  // display the warning message
     g_free(warning_msg);
   }
@@ -215,4 +212,3 @@ gboolean deleteStation(const gchar *staCode) {
 
   return result;
 }
-*/

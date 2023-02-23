@@ -258,10 +258,18 @@ static void activate(GtkApplication* app, gpointer userdata){
   g_signal_connect (mobj->btnDemo, "clicked", G_CALLBACK (btnDemo_click), mobj);
   */
 
+  g_signal_connect (mobj->treeview, "cursor-changed", G_CALLBACK(row_change), mobj);
   g_signal_connect (mobj->entRoute, "focus-in-event", G_CALLBACK (entRoute_focus), mobj);
   g_signal_connect (mobj->entRoute, "key-release-event", G_CALLBACK (entRoute_release), mobj);
   g_signal_connect (mobj->cmbDirection, "changed", G_CALLBACK (cmbDirection_change), mobj);
+  g_signal_connect (mobj->cmbDirection, "key-press-event", G_CALLBACK(cmbDirection_key_press), mobj);
+  g_signal_connect (mobj->cmbFrom, "changed", G_CALLBACK (cmbFrom_change), mobj);
+  g_signal_connect (mobj->cmbFrom, "key-press-event", G_CALLBACK(cmbFrom_key_press), mobj);
+  g_signal_connect (mobj->cmbDest, "changed", G_CALLBACK (cmbDest_change), mobj);
+  g_signal_connect (mobj->cmbDest, "key-press-event", G_CALLBACK(cmbDest_key_press), mobj);
   g_signal_connect (mobj->btnNew, "clicked", G_CALLBACK (btnNew_click), mobj);
+  g_signal_connect (mobj->btnSave, "clicked", G_CALLBACK (btnSave_click), mobj);
+  g_signal_connect (mobj->btnDelete, "clicked", G_CALLBACK (btnDelete_click), mobj);
   g_signal_connect (mobj->btnExit, "clicked", G_CALLBACK (btnExit_click), mobj);
   //g_signal_connect (mobj->window, "destroy", G_CALLBACK (btnExit_click), mobj);
   g_signal_connect(mobj->window, "delete-event", G_CALLBACK(on_main_window_delete_event), mobj);

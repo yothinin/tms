@@ -12,9 +12,12 @@ int update(MYSQL *conn, const char *sql);
 int delete(MYSQL *conn, const char *sql);
 gboolean updateRoute (Route route);
 gboolean insertRoute (Route route);
-gboolean deleteRoute (Route route);
+gboolean deleteRoute (Route *route);
 GList *getAllRoutes ();
 GList *getAllStations ();
 Route getRouteByCode (Route route);
+//gboolean insertRoute (Route route);
+//gboolean updateRoute (Route route);
+//gboolean deleteRoute (Route *route);
 
 #endif
