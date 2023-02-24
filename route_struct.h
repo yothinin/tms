@@ -60,7 +60,7 @@ typedef struct {
   GtkWidget *cmbDest;
   //GtkTreeModel *destModel;
 
-  GtkListStore *fromListStore;
+  //GtkListStore *fromListStore;
   
   gchar *message;
   
