@@ -387,26 +387,46 @@ void insertDataToTreeListStore(RouteWidgets *mobj) {
   g_list_free_full(routeList, freeRoute);
 }
 
+//void insertDataToCmbListStore(RouteWidgets *mobj) {
+  //// This function insert data from GList to GtkListStore
+  //GtkTreeIter cmbIter;
+  //GList *stationList = getAllStations ();
+  //gtk_list_store_clear (mobj->fromListStore);
+  //gtk_list_store_append (mobj->fromListStore, &cmbIter);
+  //gtk_list_store_set (mobj->fromListStore, &cmbIter, 0, "0", 1, " ", -1);
+  //for (GList *l = stationList; l != NULL; l = l->next) {
+    ////GtkTreeIter cmbIter;
+    //Station *station = (Station *)l->data;
+    //g_print("staCode: %s, staName: %s\n", station->staCode, station->staName);
+    
+    //gtk_list_store_append (mobj->fromListStore, &cmbIter);
+    //gtk_list_store_set (mobj->fromListStore, &cmbIter, 0, station->staCode,
+                                                      //1, station->staName, -1);
+  //}
+  //gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbFrom), 0);
+  //gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbDest), 0);
+  //g_list_free_full(stationList, freeStation);
+//}
 void insertDataToCmbListStore(RouteWidgets *mobj) {
   // This function insert data from GList to GtkListStore
   GtkTreeIter cmbIter;
   GList *stationList = getAllStations ();
-  gtk_list_store_clear (mobj->fromListStore);
-  gtk_list_store_append (mobj->fromListStore, &cmbIter);
-  gtk_list_store_set (mobj->fromListStore, &cmbIter, 0, "0", 1, " ", -1);
+  GtkListStore *listStore = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(mobj->cmbFrom)));
+  gtk_list_store_clear (listStore);
+  gtk_list_store_append (listStore, &cmbIter);
+  gtk_list_store_set (listStore, &cmbIter, 0, "0", 1, " ", -1);
   for (GList *l = stationList; l != NULL; l = l->next) {
-    //GtkTreeIter cmbIter;
     Station *station = (Station *)l->data;
     g_print("staCode: %s, staName: %s\n", station->staCode, station->staName);
     
-    gtk_list_store_append (mobj->fromListStore, &cmbIter);
-    gtk_list_store_set (mobj->fromListStore, &cmbIter, 0, station->staCode,
-                                                      1, station->staName, -1);
+    gtk_list_store_append (listStore, &cmbIter);
+    gtk_list_store_set (listStore, &cmbIter, 0, station->staCode, 1, station->staName, -1);
   }
   gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbFrom), 0);
   gtk_combo_box_set_active (GTK_COMBO_BOX (mobj->cmbDest), 0);
   g_list_free_full(stationList, freeStation);
 }
+
 
 /*
 

@@ -5,6 +5,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <glib/gprintf.h>
+#include "functions.h"
 #include "route_struct.h"
 #include "route_widget_fnct.h"
 
@@ -69,8 +70,9 @@ static void activate(GtkApplication* app, gpointer userdata){
   
   mobj->edit = 0;
   g_print ("%s\n", mobj->message);
-
+  
   mobj->treeview = (GtkWidget*) gtk_builder_get_object (mobj->builder, "treeviewRoute");
+  mobj->lblThaiDate = (GtkWidget*) gtk_builder_get_object (mobj->builder, "lblThaiDate");
   mobj->entRoute = (GtkWidget*) gtk_builder_get_object (mobj->builder, "entRoute");
   mobj->cmbDirection = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbDirection");
   mobj->cmbFrom = (GtkWidget*) gtk_builder_get_object (mobj->builder, "cmbFrom");
@@ -85,6 +87,25 @@ static void activate(GtkApplication* app, gpointer userdata){
   insertDataToTreeListStore (mobj);
   insertDataToCmbListStore (mobj);
   btnNew_click (NULL, mobj);
+
+    long double price = 2147483647.99;
+  char *thaitext = thai_baht_conversion(price);
+  printf("%.2Lf is %s\n", price, thaitext);
+  free(thaitext);
+  
+time_t raw_time;
+char *formatted_date;
+char lang[] = "th";
+char type[] = "1";
+
+time(&raw_time);
+
+formatted_date = dateFormat(lang, raw_time, type);
+printf("Formatted date: %s\n", formatted_date);
+
+gtk_label_set_text (GTK_LABEL (mobj->lblThaiDate), formatted_date);
+
+free(formatted_date);
 
   g_signal_connect (mobj->treeview, "cursor-changed", G_CALLBACK(row_change), mobj);
   g_signal_connect (mobj->entRoute, "focus-in-event", G_CALLBACK (entRoute_focus), mobj);

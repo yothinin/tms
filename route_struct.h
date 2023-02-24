@@ -41,6 +41,7 @@ typedef struct {
   GtkListStore *treeListStore; 
   GtkTreeIter treeIter;
   GtkTreeSelection *treeSelected;
+  GtkWidget *lblThaiDate;
   GtkWidget *entRoute; 
   GtkWidget *btnNew;
   GtkWidget *btnSave;

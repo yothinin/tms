@@ -11,8 +11,127 @@
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBrules.h>
+
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <stdio.h>
+
 #include "station_struct.h"
 #include "route_struct.h"
+
+
+char *dateFormat(char *lang, time_t date, char *type) {
+    char *result = (char *) malloc(100 * sizeof(char));
+    char day[3], month[30], year[5];
+    struct tm *timeinfo;
+
+    timeinfo = localtime(&date);
+
+    if (strcmp(lang, "th") == 0) {
+        sprintf(day, "%d", timeinfo->tm_mday);
+        sprintf(year, "%d", timeinfo->tm_year + 1900 + 543);
+
+        if (strcmp(type, "1") == 0) {
+            char *thaimonth[] = {"มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"};
+            strcpy(month, thaimonth[timeinfo->tm_mon]);
+        } else {
+            char *thaimonth[] = {"ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."};
+            strcpy(month, thaimonth[timeinfo->tm_mon]);
+        }
+    } else {
+        if (strcmp(type, "1") == 0) {
+            strftime(month, 20, "%B", timeinfo);
+        } else {
+            strftime(month, 20, "%b", timeinfo);
+        }
+        sprintf(day, "%d", timeinfo->tm_mday);
+        sprintf(year, "%d", timeinfo->tm_year + 1900);
+    }
+
+    sprintf(result, "%s %s %s", day, month, year);
+    return result;
+}
+
+//max value is: ./thai 2147483647.99
+//-0.00 is สองพันหนึ่งร้อยสี่สิบเจ็ดล้านสี่แสนแปดหมื่นสามพันหกร้อยสี่สิบเจ็ดบาทเก้าสิบเก้าสตางค์
+gchar *read_number(long number) {
+    //const gchar *position_call[] = {"แสน", "หมื่น", "พัน", "ร้อย", "สิบ", ""};
+    //const gchar *number_call[] = {"", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"};
+    const gchar *position_call[] = {"แสน", "หมื่น", "พัน", "ร้อย", "สิบ", ""};
+    const gchar *number_call[] = {"", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"};
+
+    GString *ret = g_string_new("");
+    if (number == 0) {
+        return g_string_free(ret, FALSE);
+    }
+
+    if (number > 1000000) {
+        g_string_printf(ret, "%s%s", read_number(number / 1000000), "ล้าน");
+        number = number % 1000000;
+    }
+
+    int divider = 100000;
+    int pos = 0;
+
+    while (number > 0) {
+        int d = number / divider;
+
+        if (divider == 10 && d == 2) {
+            g_string_append(ret, "ยี่");
+        } else if (divider == 10 && d == 1) {
+            // do nothing
+        } else if (divider == 1 && d == 1 && ret->len != 0) {
+            g_string_append(ret, "เอ็ด");
+        } else {
+            g_string_append(ret, number_call[d]);
+        }
+
+        if (d) {
+            g_string_append(ret, position_call[pos]);
+        }
+
+        number = number % divider;
+        divider /= 10;
+        pos++;
+    }
+
+    return g_string_free(ret, FALSE);
+}
+
+gchar *thai_baht_conversion(double amount_number) {
+    gchar *baht = read_number((long)amount_number);
+    gchar *satang = NULL;
+
+    int fraction = (int)((amount_number - (double)((long)amount_number)) * 100.0 + 0.5);
+
+    if (fraction > 0) {
+        satang = read_number(fraction);
+
+        if (satang != NULL) {
+            size_t len = strlen(baht) + strlen(satang) + 28;
+            gchar *ret = g_malloc(len);
+            snprintf(ret, len, "%sบาท%sสตางค์", baht, satang);
+
+            g_free(baht);
+            g_free(satang);
+
+            return ret;
+        }
+    }
+
+    if (baht != NULL) {
+        size_t len = strlen(baht) + 28;
+        gchar *ret = g_malloc(len);
+        snprintf(ret, len, "%sบาทถ้วน", baht);
+
+        g_free(baht);
+
+        return ret;
+    }
+
+    return NULL;
+}
 
 void change_keyb (gchar *new_group){
   Display *dpy = XOpenDisplay(NULL);
