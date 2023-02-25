@@ -82,7 +82,6 @@ static void activate(GtkApplication* app, gpointer userdata){
   mobj->btnExit = (GtkWidget*) gtk_builder_get_object (mobj->builder, "btnExit");
   mobj->btnDelete = (GtkWidget*) gtk_builder_get_object (mobj->builder, "btnDelete");
   mobj->treeListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "liststore1");
-  //mobj->fromListStore = (GtkListStore*) gtk_builder_get_object (mobj->builder, "stationLists");
   
   insertDataToTreeListStore (mobj);
   insertDataToCmbListStore (mobj);

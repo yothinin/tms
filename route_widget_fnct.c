@@ -131,15 +131,11 @@ gboolean entRoute_release (GtkWidget *widget, GdkEventKey *event, gpointer user_
 void cmbDirection_change (GtkComboBox *combo_box, gpointer user_data) {
   RouteWidgets *mobj = (RouteWidgets*) user_data;
 
-  // Get the active item index (i.e., the index of the currently selected item)
-  gint active_item_index = gtk_combo_box_get_active (GTK_COMBO_BOX (mobj->cmbDirection));
-  g_print("Selected item index: %d\n", active_item_index);
-
-  // Do something with the active item index (e.g., print it to the console)
-  mobj->directModel = gtk_combo_box_get_model (GTK_COMBO_BOX (mobj->cmbDirection));
-  gtk_combo_box_get_active_iter (GTK_COMBO_BOX (mobj->cmbDirection), &mobj->directIter);
+  GtkTreeModel *directModel = gtk_combo_box_get_model (GTK_COMBO_BOX (mobj->cmbDirection));
+  GtkTreeIter directIter;
+  gtk_combo_box_get_active_iter (GTK_COMBO_BOX (mobj->cmbDirection), &directIter);
   gchar *directVal;
-  gtk_tree_model_get(mobj->directModel, &mobj->directIter, 0, &directVal, -1);
+  gtk_tree_model_get(directModel, &directIter, 0, &directVal, -1);
 
   gchar *rouCode = (gchar *)gtk_entry_get_text(GTK_ENTRY(mobj->entRoute));
   Route route = {rouCode, NULL, NULL, directVal, NULL, NULL};
@@ -191,59 +187,33 @@ void cmbDirection_change (GtkComboBox *combo_box, gpointer user_data) {
 }
 
 gboolean cmbDirection_key_press(GtkWidget *widget, GdkEventKey *event, gpointer user_data) {
-    // Cast user_data to mobj
     RouteWidgets *mobj = (RouteWidgets*) user_data;
-
-    // Check if the key pressed was Enter
     if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-        // Handle the Enter key press event
-        // ...
-
         gtk_widget_grab_focus (mobj->cmbFrom);
-
         // Return TRUE to indicate that the event was handled
         return TRUE;
     }
-
     // Return FALSE to indicate that the event was not handled
     return FALSE;
 }
 
 gboolean cmbFrom_key_press(GtkWidget *widget, GdkEventKey *event, gpointer user_data) {
-    // Cast user_data to RouteWidgets
     RouteWidgets *mobj = (RouteWidgets*) user_data;
-
-    // Check if the key pressed was Enter
     if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-        // Handle the Enter key press event
-        // ...
-
         gtk_widget_grab_focus (mobj->cmbDest);
-
         // Return TRUE to indicate that the event was handled
         return TRUE;
     }
-
     // Return FALSE to indicate that the event was not handled
     return FALSE;
 }
 
 gboolean cmbDest_key_press(GtkWidget *widget, GdkEventKey *event, gpointer user_data) {
-    // Cast user_data to RouteWidgets
     RouteWidgets *mobj = (RouteWidgets*) user_data;
-
-    // Check if the key pressed was Enter
     if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
-        // Handle the Enter key press event
-        // ...
-
         gtk_widget_grab_focus (mobj->btnSave);
-
-        // Return TRUE to indicate that the event was handled
         return TRUE;
     }
-
-    // Return FALSE to indicate that the event was not handled
     return FALSE;
 }
 
@@ -276,19 +246,21 @@ void btnSave_click(GtkButton *button, gpointer user_data) {
   };
   
   GtkTreeIter iter;
-  GtkTreeModel *model;  
+  GtkTreeModel *model;
   if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(mobj->cmbDirection), &iter)) {
-      model = gtk_combo_box_get_model(GTK_COMBO_BOX(mobj->cmbDirection));
-      gtk_tree_model_get(model, &iter, 0, &(route.rouDirection), -1);
+    model = gtk_combo_box_get_model(GTK_COMBO_BOX(mobj->cmbDirection));
+    gtk_tree_model_get(model, &iter, 0, &(route.rouDirection), -1);
   }
   
   GtkTreeIter fromIter;
+  GtkListStore *fromStore = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(mobj->cmbFrom)));
   if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(mobj->cmbFrom), &fromIter))
-    gtk_tree_model_get(GTK_TREE_MODEL (mobj->fromListStore), &fromIter, 0, &(route.staFrom), -1);
+    gtk_tree_model_get(GTK_TREE_MODEL (fromStore), &fromIter, 0, &(route.staFrom), -1);
 
   GtkTreeIter destIter;
+  GtkListStore *destStore = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(mobj->cmbDest)));  
   if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(mobj->cmbDest), &destIter))
-    gtk_tree_model_get(GTK_TREE_MODEL (mobj->fromListStore), &destIter, 0, &(route.staTo), -1);
+    gtk_tree_model_get(GTK_TREE_MODEL (destStore), &destIter, 0, &(route.staTo), -1);
 
   if (mobj->edit == 0)
     insertRoute (route);

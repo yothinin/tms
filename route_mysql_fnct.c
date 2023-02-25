@@ -124,7 +124,7 @@ Route getRouteByCode (Route route){
   MYSQL *conn = connect_to_db ();
   MYSQL_RES *result;
   MYSQL_ROW row;
-  // Build the query using the station code
+  // Build the query using the station code and rouDirection.
   gchar sql[1000];
   sprintf(sql, "SELECT s1.sta_name, s2.sta_name, r.sta_from, r.sta_to FROM route r LEFT JOIN station s1 ON r.sta_from = s1.sta_code LEFT JOIN station s2 ON r.sta_to = s2.sta_code WHERE rou_code = '%s' and rou_direction = '%s' ORDER BY r.rou_code, r.rou_direction;", route.rouCode, route.rouDirection);
 
