@@ -1,4 +1,84 @@
 #include <gtk/gtk.h>
+#include <sys/file.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <string.h>
+
+int is_process_running(char *process_name) {
+    FILE *fp;
+    char command[100];
+    char output[100];
+    memset(output, 0, sizeof(output));
+    int pid;
+
+    // Build the command to check if the process is running
+    sprintf(command, "pidof %s", process_name);
+
+    // Run the command and read its output
+    fp = popen(command, "r");
+    fgets(output, sizeof(output), fp);
+    pclose(fp);
+
+    // If the output is not empty, the process is already running
+    if (strlen(output) > 0) {
+        printf("The \"%s\" process is already running.\n", process_name);
+        return 1;
+    }
+
+    return 0;
+}
+
+//gboolean is_route_running = FALSE;
+
+//static void on_icon_view_item_activated(GtkIconView *icon_view, GtkTreePath *path, gpointer user_data) {
+    //GtkTreeModel *model;
+    //GtkTreeIter iter;
+
+    //// Get the model and iter of the selected item
+    //model = gtk_icon_view_get_model(icon_view);
+    //gtk_tree_model_get_iter(model, &iter, path);
+
+    //// Get the text of the selected item
+    //gchar *text;
+    //gtk_tree_model_get(model, &iter, 1, &text, -1);
+
+    //// Launch the appropriate process based on the selected item
+    //if (strcmp(text, "เส้นทาง") == 0) {
+        //if (!is_route_running) {
+            //// Launch the "route" process
+            //GError *error = NULL;
+            //if (!g_spawn_command_line_async("./route", &error)) {
+                //fprintf(stderr, "Error launching route process: %s\n", error->message);
+                //g_error_free(error);
+            //} else {
+                //// Mark the "route" process as running
+                //is_route_running = TRUE;
+            //}
+        //} else {
+            //// The "route" process is already running, do nothing
+            //fprintf(stderr, "The \"route\" process is already running.\n");
+        //}
+    //} else if (strcmp(text, "สถานี") == 0) {
+        //// Launch the "station" process
+        //system("./station");
+    //} else if (strcmp(text, "ประเภทรถ") == 0) {
+        //// Launch the "bus" process
+        //system("./bus");
+    //} else if (strcmp(text, "ตารางเดินรถ") == 0) {
+        //// Launch the "schedule" process
+        //system("./schedule");
+    //} else if (strcmp(text, "จำหน่ายตั๋ว") == 0) {
+        //// Launch the "ticket" process
+        //system("./ticket");
+    //} else if (strcmp(text, "รายงาน") == 0) {
+        //// Launch the "report" process
+        //system("./report");
+    //}
+
+    //g_free(text);
+//}
 
 static void on_icon_view_item_activated(GtkIconView *icon_view, GtkTreePath *path, gpointer user_data) {
     GtkTreeModel *model;
@@ -14,7 +94,8 @@ static void on_icon_view_item_activated(GtkIconView *icon_view, GtkTreePath *pat
 
     // Call the corresponding function based on the selected item
     if (g_strcmp0(text, "เส้นทาง") == 0) {
-        system("./route");
+      if (!is_process_running("route"))
+        system("./route &");
     } else if (g_strcmp0(text, "สถานี") == 0) {
         system("./station");
     } else if (g_strcmp0(text, "ประเภทรถ") == 0) {
@@ -30,28 +111,6 @@ static void on_icon_view_item_activated(GtkIconView *icon_view, GtkTreePath *pat
     // Free the memory allocated for text
     g_free(text);
 }
-
-
-//static void on_icon_view_item_activated(GtkIconView *icon_view, GtkTreePath *path, gpointer user_data) {
-    //GtkTreeModel *model;
-    //GtkTreeIter iter;
-
-    //// Get the model and iter of the selected item
-    //model = gtk_icon_view_get_model(icon_view);
-    //gtk_tree_model_get_iter(model, &iter, path);
-
-    //// Get the text of the selected item
-    //gchar *text;
-    //gtk_tree_model_get(model, &iter, 1, &text, -1);
-
-    //// Display a message box with the text of the selected item
-    //gchar *message = g_strdup_printf("You double-clicked %s", text);
-    //GtkWidget *dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "%s", message);
-    //gtk_dialog_run(GTK_DIALOG(dialog));
-    //gtk_widget_destroy(dialog);
-    //g_free(message);
-    //g_free(text);
-//}
 
 static void on_window_closed(GtkWidget *widget, gpointer user_data) {
     // Exit the main loop when the window is closed
